@@ -1,0 +1,67 @@
+body {
+    margin: 0; /* Reset default margin */
+    padding: 0; /* Reset default padding */
+  }
+
+h4, h6 {
+   margin-bottom: 10px;
+   margin-top: 10px;
+}
+
+/* Directory */
+h4 {
+  font-size: 20px;
+  padding: 16px 16px; /* Padding for headings */
+  margin-bottom: 5px;
+}
+
+/* Database + Reports&Logs */
+h6 {
+  font-size: 15px;
+  padding: 2px 16px; /* Padding for headings */
+}
+
+   /* Font Family */
+.topnav, .sidebar, .topnav a, .sidebar a {
+    font-family: Monaco, monospace;
+  }
+  
+   /* Top Navigation*/
+  .topnav {
+    overflow: hidden;  
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+  }
+  
+  .topnav a {
+    float: left;
+    color: #DC143C;
+    text-align: center;
+    padding: 40px 20px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+
+   /* SIDEBAR */
+  .sidebar {
+    width: 200px; /* width for the sidebar */
+    position: fixed; /* Fix the sidebar in place */
+    height: 100%;
+    overflow: auto;
+    left: 0; /*  sidebar on the left side of the page */
+    border-right: 3px solid #ddd;
+  }
+  
+  .sidebar a {
+    display: block; /* Make links behave like block elements */
+    color: black; 
+    text-align: left; 
+    padding: 8px 16px; 
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+   /* SIDEBAR HOVER */
+  .sidebar a:hover { 
+    background-color: #e0e0e0;
+  }
+  
