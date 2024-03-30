@@ -12,9 +12,6 @@ def doc_update(request):
     # Fetch data from the database or perform any other operations
     update_data(request)
     documents = Document.objects.all()  # Example: Fetch all documents from the database
-    
-
-
     # Render the template
     return render(request, "frontpage.html", {'documents': documents})
 

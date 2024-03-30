@@ -7,4 +7,4 @@ class Document(models.Model):
     date = models.DateField()
 
     def __str__(self):
-        return self.document_name
+       return self.document_name
