@@ -1,3 +1,10 @@
 from django.db import models
 
-# Create your models here.
+class Document(models.Model):
+    document_name = models.CharField(max_length=100)
+    document_type = models.CharField(max_length=50)
+    supplier = models.CharField(max_length=100)
+    date = models.DateField()
+
+    def __str__(self):
+        return self.document_name
