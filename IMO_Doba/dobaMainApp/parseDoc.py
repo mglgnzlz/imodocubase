@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from django.shortcuts import render
 from django.http import JsonResponse
-from models import Document
+from .models import Document
 
 def parse_folder(folder_path):
     for filename in os.listdir(folder_path):
@@ -27,7 +27,7 @@ def parse_folder(folder_path):
 
 def update_data(request):
     # Specify the folder path where your PDF files are located
-    folder_path = 'D:\SCHOOL\DOBA_WebApp\IMO_Doba\sample_DB'
+    folder_path = 'D:/SCHOOL/DOBA_WebApp/IMO_Doba/sample_DB'
     parse_folder(folder_path)
-    updated_data = {'message': 'Data updated successfully'}
-    return JsonResponse(updated_data)
+    print("function call")
+
