@@ -25,7 +25,6 @@ def parse_folder(folder_path):
                     if existing_document:
                         print(f"Document {document_name} already exists in the database. Skipping...")
                     else:
-                        # Save the document to the database
                         document = Document(
                             document_name=filename,
                             document_type=document_type,
