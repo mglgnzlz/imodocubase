@@ -36,8 +36,29 @@
             xhr.send();
         });
     </script>
-
-    {{ documents }}
+  </div>
+  <div class = "table_section">
+    <h1>Document List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Document Name</th>
+                <th>Document Type</th>
+                <th>Supplier</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for document in documents %}
+            <tr>
+                <td>{{ document.document_name }}</td>
+                <td>{{ document.document_type }}</td>
+                <td>{{ document.supplier }}</td>
+                <td>{{ document.date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
   </div>
 </body>
   </html>
