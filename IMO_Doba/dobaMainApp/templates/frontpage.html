@@ -21,6 +21,7 @@
     <h1>Update Data</h1>
     <button id="update-btn">Update Data</button>
 
+    <!-- JS Section, AJAX for file retrieval, reference doc_update via views.py -->
     <script>
         document.getElementById('update-btn').addEventListener('click', function() {
             // Send an AJAX request to the Django view
@@ -29,7 +30,6 @@
             xhr.onload = function () {
                 if (xhr.status == 200) {
                     alert('Data updated successfully');
-                    // You can perform further actions here if needed
                 } else {
                     alert('Failed to update data');
                 }
@@ -37,6 +37,33 @@
             xhr.send();
         });
     </script>
+  </div>
+  <div class = "table_section">
+    <h1>Document List</h1>
+    
+    <!-- TABLE CONTENTS -->
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Document Name</th>
+                <th>Document Type</th>
+                <th>Supplier</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Django loop function for each document in Document module, via views.py -->
+            {% for document in documents %}
+            <tr>
+                <td>{{ document.document_name }}</td>
+                <td>{{ document.document_type }}</td>
+                <td>{{ document.supplier }}</td>
+                <td>{{ document.date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
   </div>
 </body>
   </html>
