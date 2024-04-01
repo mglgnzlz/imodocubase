@@ -27,7 +27,11 @@ def translogs(request):
     return render(request, "dobaMainPage/translogs.html", {'documents':documents})
 
 def rep_gen(request):
-    documents = Document.objects.all
+    error_message = None
+    start_date = None
+    queryset = None
+    end_date = None
+
     try:
 
         if request.method == 'POST':
@@ -43,3 +47,5 @@ def rep_gen(request):
     except Exception as e:
             error_message = "An error occurred: " + str(e)
             return render(request, 'dobaMainPage/repgeny.html', {'error_message': error_message})
+    
+    return render(request, 'dobaMainPage/repgeny.html', {'queryset':queryset})
