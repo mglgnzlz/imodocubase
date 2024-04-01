@@ -21,10 +21,10 @@ def home(request):
 
     return render(request, "dobaMainPage/home.html", {'documents':documents})
 
-def trans_logs(request):
+def translogs(request):
     documents = Document.objects.all
 
-    return render(request, "dobaMainPage/trans_logs.html", {'documents':documents})
+    return render(request, "dobaMainPage/translogs.html", {'documents':documents})
 
 def rep_gen(request):
 
