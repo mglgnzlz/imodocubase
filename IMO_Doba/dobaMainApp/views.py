@@ -13,5 +13,21 @@ def doc_update(request):
     update_data(request)
     documents = Document.objects.all()  # Example: Fetch all documents from the database
     # Render the template
-    return render(request, "frontpage.html", {'documents': documents})
+    return render(request, "dobaMainPage/dbview.html", {'documents': documents})
 
+def home(request):
+
+    documents = Document.objects.all
+
+    return render(request, "dobaMainPage/home.html", {'documents':documents})
+
+def trans_logs(request):
+    documents = Document.objects.all
+
+    return render(request, "dobaMainPage/trans_logs.html", {'documents':documents})
+
+def rep_gen(request):
+
+    documents = Document.objects.all()
+
+    return render(request, "dobaMainPage/repgeny.html", {'documents':documents})
