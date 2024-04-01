@@ -27,7 +27,19 @@ def translogs(request):
     return render(request, "dobaMainPage/translogs.html", {'documents':documents})
 
 def rep_gen(request):
+    documents = Document.objects.all
+    try:
 
-    documents = Document.objects.all()
+        if request.method == 'POST':
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
 
-    return render(request, "dobaMainPage/repgeny.html", {'documents':documents})
+            # Perform query to retrieve data based on date range
+            queryset = Document.objects.filter(date__range=[start_date, end_date])
+
+            # Return response (render report template or return data as JSON/XML)
+            return render(request, 'dobaMainPage/repgeny.html', {'queryset':queryset})
+
+    except Exception as e:
+            error_message = "An error occurred: " + str(e)
+            return render(request, 'dobaMainPage/repgeny.html', {'error_message': error_message})
