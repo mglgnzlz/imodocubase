@@ -35,6 +35,7 @@
                 <th>Document Type</th>
                 <th>Supplier</th>
                 <th>Date</th>
+                <th>Download</th>
             </tr>
         </thead>
         <tbody>
@@ -45,6 +46,8 @@
                 <td>{{ document.document_type }}</td>
                 <td>{{ document.supplier }}</td>
                 <td>{{ document.date }}</td>
+                <td><a href="{% url 'download_document' document.id %}" class="btn btn-primary">Download</a></td>
+                
             </tr>
             {% endfor %}
         </tbody>

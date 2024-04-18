@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import Document
 from django.http import JsonResponse
 from .parseDoc import update_data
+from django.shortcuts import get_object_or_404
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -49,3 +50,17 @@ def rep_gen(request):
             return render(request, 'dobaMainPage/repgeny.html', {'error_message': error_message})
     
     return render(request, 'dobaMainPage/repgeny.html', {'queryset':queryset})
+
+
+def download_document(request, document_id):
+    # Retrieve the document object from the database
+    document = get_object_or_404(Document, pk=document_id)
+
+    # Get the file content from the document object
+    file_content = document.file_content
+
+    # Create HTTP response for file download
+    response = HttpResponse(file_content, content_type='application/octet-stream')
+    response['Content-Disposition'] = f'attachment; filename="{document.document_name}"'
+
+    return response
