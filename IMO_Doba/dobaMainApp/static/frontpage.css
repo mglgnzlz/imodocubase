@@ -47,12 +47,6 @@ th {
 }
 
 
-.table_section{
-  margin: auto;
-  width: 50%;
-  padding: 10px;
-  font-family: Monaco,monospace;
-}
    /* Font Family */
 .topnav, .sidebar, .topnav a, .sidebar a {
     font-family: Monaco, monospace;
