@@ -1,15 +1,15 @@
 {% extends 'dobaMainPage/base.html' %}
 
 
-{% block content  %}
+{% block content %}
 
-<div class = "content_section">
+<div class="content_section">
     <h1>Update Data</h1>
     <button id="update-btn">Update Data</button>
 
     <!-- JS Section, AJAX for file retrieval, reference doc_update via views.py -->
     <script>
-        document.getElementById('update-btn').addEventListener('click', function() {
+        document.getElementById('update-btn').addEventListener('click', function () {
             // Send an AJAX request to the Django view
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '{% url "doc_update" %}', true);
@@ -23,12 +23,12 @@
             xhr.send();
         });
     </script>
-  </div>
-  <div class = "table_section">
+</div>
+<div class="table_section">
     <h1>Document List</h1>
-    
+
     <!-- TABLE CONTENTS -->
-    
+
     <table>
         <thead>
             <tr>
@@ -39,34 +39,33 @@
                 <th>Download</th>
             </tr>
         </thead>
-        <tbody >
+        <tbody>
             <!-- Django loop function for each document in Document module, via views.py -->
             {% for document in documents %}
-            <tr class = "document" id ="document {{ document.id }}" data-document-id="{{ document.id }}">
+            <tr class="document" id="document {{ document.id }}" data-document-id="{{ document.id }}">
                 <td>{{ document.document_name }}</td>
                 <td>{{ document.document_type }}</td>
                 <td>{{ document.supplier }}</td>
                 <td>{{ document.date }}</td>
                 <td><a href="{% url 'download_document' document.id %}" class="btn btn-primary">Download</a></td>
-                
+
             </tr>
+
             {% endfor %}
         </tbody>
     </table>
-  </div>
+</div>
 
 
 
 
-
-
-  <script>
-    function displayContextMenu(event){
+<script>
+    function displayContextMenu(event) {
         event.preventDefault();
 
         var contextMenu = document.getElementById("contextMenu");
 
-        contextMenu.style.display ="block";
+        contextMenu.style.display = "block";
         contextMenu.style.left = event.pageX + "px";
         contextMenu.style.top = event.pageY + "px";
 
@@ -84,24 +83,24 @@
         const documents = document.querySelectorAll('.document');
 
 
-        documents.forEach(function(document) {
-            document.addEventListener('click', function(event) {
-            // Retrieve document_id from data attribute
+        documents.forEach(function (document) {
+            document.addEventListener('click', function (event) {
+                // Retrieve document_id from data attribute
                 const documentId = document.dataset.documentId;
 
-            // Output document_id to console
+                // Output document_id to console
                 console.log('Selected Document ID:', documentId);
-                if(document.classList.contains('selected')) {
+                if (document.classList.contains('selected')) {
 
                     document.classList.remove('selected');
                 } else {
-                    documents.forEach(function(doc) {
+                    documents.forEach(function (doc) {
                         doc.classList.remove('selected');
                     });
                     document.classList.add('selected');
                 }
             })
-        }) 
+        })
     })
 </script>
 

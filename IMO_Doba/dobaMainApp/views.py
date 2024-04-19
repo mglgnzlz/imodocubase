@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from .models import Document
 from django.http import JsonResponse
 from .parseDoc import update_data
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -14,6 +14,7 @@ def doc_update(request):
     update_data(request)
     documents = Document.objects.all()  # Example: Fetch all documents from the database
     # Render the template
+    
     return render(request, "dobaMainPage/dbview.html", {'documents': documents})
 
 def home(request):
@@ -64,3 +65,25 @@ def download_document(request, document_id):
     response['Content-Disposition'] = f'attachment; filename="{document.document_name}"'
 
     return response
+
+def rename_doc(request, document_id):
+    document = get_object_or_404(Document, pk=document_id)
+
+    if request.method == 'POST':
+        new_name = request.POST.get('new_name')
+
+        if new_name: 
+            document.document_name = new_name
+            document.save()
+    return redirect(request, 'dobaMainPage/rename_doc.html', {'documents': document})
+
+
+def delete_doc(request, document_id):
+    document = get_object_or_404(Document, pk=document_id)
+
+    if request.method == 'POST':
+        document.delete()
+    
+    return redirect(request, 'dobaMainPage/dbview.html', {'documents': document})
+
+
