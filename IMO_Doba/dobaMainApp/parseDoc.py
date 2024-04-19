@@ -37,7 +37,7 @@ def parse_folder(folder_path):
             print(f"Error processing {filename}: {e}")
 
 def update_data(request):
-    folder_path = 'imodocubase\IMO_Doba\sample_DB'
+    folder_path = 'C:/Users/Carl/Documents/SCHOOLWORKS/IMO_Doba/imodocubase/IMO_Doba/sample_DB'
     try:
         parse_folder(folder_path)
         print("function call " + folder_path)

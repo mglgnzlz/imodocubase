@@ -47,6 +47,19 @@ th {
 }
 
 
+
+.document {
+  cursor: pointer;
+  padding: 10px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+}
+
+.selected {
+  background-color: #f0f0f0;
+  border: 2px solid blue;
+}
+
    /* Font Family */
 .topnav, .sidebar, .topnav a, .sidebar a {
     font-family: Monaco, monospace;
