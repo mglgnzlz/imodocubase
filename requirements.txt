@@ -1,0 +1,9 @@
+asgiref==3.8.1
+Django==5.0.3
+greenlet==3.0.3
+Pillow==10.1.0
+PyPDF2==3.0.1
+SQLAlchemy==2.0.25
+sqlparse==0.4.4
+typing_extensions==4.9.0
+tzdata==2024.1
