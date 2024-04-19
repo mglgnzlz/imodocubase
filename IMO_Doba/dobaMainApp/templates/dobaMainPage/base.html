@@ -19,15 +19,8 @@
     <a href="{% url 'rep_gen' %}" class="button"><i class="fa-solid fa-bars"></i> Generate Reports</a>
     <a href="{% url 'translogs' %}" class="button"><i class="fa-regular fa-face-smile"></i> Transmission Logs</a>
   </div>
-  
-  {% for document in documents %}
-  <div id="contextMenu" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; padding: 5px;">
-    <ul>
-      <li><a href="{% url 'rename_doc' document.id %}" id="menuItem1">Rename</a></li>
-      <li><a href="{% url 'delete_doc' document.id %}" id="menuItem1">Delete</a></li>
-    </ul>
-  </div>
-  {% endfor %}
+
+
 
 
   <div class="content_section">

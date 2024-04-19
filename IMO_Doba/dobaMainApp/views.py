@@ -67,16 +67,16 @@ def download_document(request, document_id):
     return response
 
 def rename_doc(request, document_id):
-    document = get_object_or_404(Document, pk=document_id)
+    documents = get_object_or_404(Document, pk=document_id)
+    context = {'document': documents}
 
     if request.method == 'POST':
         new_name = request.POST.get('new_name')
 
         if new_name: 
-            document.document_name = new_name
-            document.save()
-    return redirect(request, 'dobaMainPage/rename_doc.html', {'documents': document})
-
+            documents.document_name = new_name
+            documents.save()
+    return render(request, 'dobaMainPage/rename_doc.html', context)
 
 def delete_doc(request, document_id):
     document = get_object_or_404(Document, pk=document_id)
