@@ -50,12 +50,10 @@
                 <td><a href="{% url 'download_document' document.id %}" class="btn btn-primary">Download</a></td>
 
             </tr>
-
             {% endfor %}
         </tbody>
     </table>
 </div>
-
 
 {% for document in documents %}
 <div id="contextMenu" style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; padding: 5px;">
@@ -64,8 +62,8 @@
         <li><a href="{% url 'delete_doc' document.id %}" id="menuItem1">Delete</a></li>
     </ul>
 </div>
-{% endfor %}
 
+{% endfor %}
 <script>
     function displayContextMenu(event) {
         event.preventDefault();

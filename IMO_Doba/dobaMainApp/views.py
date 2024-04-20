@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from .parseDoc import update_data
 from django.shortcuts import get_object_or_404, redirect
 from .forms import RenameDocumentForm
+import os 
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -74,7 +75,21 @@ def rename_doc(request, document_id):
         form = RenameDocumentForm(request.POST, instance=document)
         if form.is_valid():
             # Save the updated document name
-            form.save()
+            new_fileName = form.cleaned_data['document_name']
+            print(new_fileName)
+        
+            old_filePath = document.file_path
+            new_filePath = os.path.join(os.path.dirname(old_filePath), new_fileName)            
+            os.rename(old_filePath, new_filePath)
+            document.file_path = new_filePath
+            
+            document.document_name = new_fileName
+            document.save()
+            
+            original_document_id = document_id
+            document.delete() 
+            
+            update_data(request)
             return redirect('/dbview')  # Redirect to document detail page
     else:
         # Initialize the form with the document instance
@@ -91,6 +106,6 @@ def delete_doc(request, document_id):
     if request.method == 'POST':
         document.delete()
     
-    return redirect(request, 'dobaMainPage/dbview.html', {'documents': document})
+    return render(request, 'dobaMainPage/dbview.html', {'documents': document})
 
 

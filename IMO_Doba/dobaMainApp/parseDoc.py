@@ -29,7 +29,8 @@ def parse_folder(folder_path):
                             document_name=filename,
                             document_type=document_type,
                             supplier=supplier,
-                            date=date
+                            date=date,
+                            file_path = file_path,
                         )
                         document.save()
                         print(f"Document {document_name} saved to the database.")
