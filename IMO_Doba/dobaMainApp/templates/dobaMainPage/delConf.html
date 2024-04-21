@@ -1,0 +1,10 @@
+{% extends 'dobaMainPage/base.html' %}
+
+{% block content %}
+<h1>Delete Document: {{ document.document_name }}</h1>
+
+<form method="post" action="{% url 'delete_doc' document.id %}"> 
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
+{% endblock %}

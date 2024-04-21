@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from .models import Document
 from django.http import JsonResponse
 from .parseDoc import update_data
 from django.shortcuts import get_object_or_404, redirect
 from .forms import RenameDocumentForm
+from send2trash import send2trash
 import os 
 
 def index(request):
@@ -102,10 +103,20 @@ def rename_doc(request, document_id):
 
 def delete_doc(request, document_id):
     document = get_object_or_404(Document, pk=document_id)
-
-    if request.method == 'POST':
-        document.delete()
+    file_path = document.file_path
     
-    return render(request, 'dobaMainPage/dbview.html', {'documents': document})
+    if request.method == 'POST':
+        try:
+            print("Deleting " + file_path)
+            os.remove(file_path)
+            document.delete()
+            return redirect('/dbview')
+            
+        except:
+            HttpResponseNotFound(f"FILE '{file_path}' NOT FOUND")
+            return redirect('/dbview')
+
+
+    return render(request, 'dobaMainPage/delConf.html', {'document': document})
 
 

@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Rename Document: {{ document.document_name }}</h1>
 
-<form method="post" action="{% url 'rename_doc' document.id %}" enctype="multipart/form-data"> 
+<form method="post" action="{% url 'rename_doc' document.id %}"> 
     {% csrf_token %}
     <label for="new_document_name">New Document Name:</label>
     {{ form.as_p }}
