@@ -108,7 +108,7 @@ def delete_doc(request, document_id):
     if request.method == 'POST':
         try:
             print("Deleting " + file_path)
-            os.remove(file_path)
+            send2trash(file_path)
             document.delete()
             return redirect('/dbview')
             

@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=D:\SCHOOL\DOBA_WebApp\.venv
+set VIRTUAL_ENV=C:\Users\Carl\Documents\SCHOOLWORKS\IMO_Doba\imodocubase\.venv
 
 if not defined PROMPT set PROMPT=$P$G
 
