@@ -4,25 +4,19 @@
 {% block content %}
 
 <div class="content_section">
-    <h1>Update Data</h1>
-    <button id="update-btn">Update Data</button>
+    <div>
+        <h3>Search: </h3>
+        <form action="{%url 'search_data' %}" method="GET">
+            <input type="text" name="query" placeholder="IAR/EPR_SUPPLIER_DATE">
+            <button id="search_btn" type="submit">Search</button>
+        </form>
+    </div>
+    <div>
+        <h1>Update Data</h1>
+        <button id="update-btn" name="update-btn">Update Data</button>
+    </div>
 
-    <!-- JS Section, AJAX for file retrieval, reference doc_update via views.py -->
-    <script>
-        document.getElementById('update-btn').addEventListener('click', function () {
-            // Send an AJAX request to the Django view
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '{% url "doc_update" %}', true);
-            xhr.onload = function () {
-                if (xhr.status == 200) {
-                    alert('Data updated successfully');
-                } else {
-                    alert('Failed to update data');
-                }
-            };
-            xhr.send();
-        });
-    </script>
+
 </div>
 <div class="table_section">
     <h1>Document List</h1>
@@ -68,7 +62,21 @@
 <script>
 
 
-
+    //UPDATE DOCUMENT CALLS
+    document.getElementById('update-btn').addEventListener('click', function () {
+        // Send an AJAX request to the Django view
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{% url "doc_update" %}', true);
+        xhr.onload = function () {
+            if (xhr.status == 200) {
+                alert('Data updated successfully');
+            } else {
+                alert('Failed to update data');
+            }
+        };
+        xhr.send();
+    });
+    //CONTEXT MENU LOADING AND DOCUMENT SELECTION LOGIC
     document.addEventListener('DOMContentLoaded', function () {
         const documents = document.querySelectorAll('.document');
         const contextMenu = document.getElementById('contextMenu');
@@ -135,7 +143,5 @@
 
 
 </script>
-
-
 
 {% endblock %}

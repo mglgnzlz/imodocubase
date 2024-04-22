@@ -22,12 +22,13 @@ def doc_update(request):
 
 def home(request):
 
-    documents = Document.objects.all
+#Scripts for HOME PAGE to Django Backend
 
     return render(request, "dobaMainPage/home.html", {'documents':documents})
 
 def translogs(request):
-    documents = Document.objects.all
+
+#Scripts for TRANSMISSION LOGS to Django Backend
 
     return render(request, "dobaMainPage/translogs.html", {'documents':documents})
 
@@ -119,4 +120,20 @@ def delete_doc(request, document_id):
 
     return render(request, 'dobaMainPage/delConf.html', {'document': document})
 
+def search_data(request):
+    query = request.GET.get('query')
+    documents = Document.objects.all()
+    
+    if query:
+        results = Document.objects.filter(document_type__icontains=query)
+        print(results)
+    else:
+        results = []
+    
+    context = {
+        'query':query,  
+        'results':results,
+        'documents':documents,
+    }
 
+    return render(request, "dobaMainPage/searchPage.html", context)

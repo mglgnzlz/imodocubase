@@ -3,10 +3,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from .models import Document
 
-from datetime import datetime
-from django.http import HttpResponse
-from .models import Document
-import os
+
 
 def parse_folder(folder_path):
     for filename in os.listdir(folder_path):
