@@ -3,21 +3,21 @@
 
 {% block content %}
 
-<div class="content_section">
-    <div>
+<div class="dbview_header">
+    <div class="search_sec">
         <h3>Search: </h3>
-        <form action="{%url 'search_data' %}" method="GET">
+        <form class="search_bar" action="{%url 'search_data' %}" method="GET">
             <input type="text" name="query" placeholder="IAR/EPR_SUPPLIER_DATE">
             <button id="search_btn" type="submit">Search</button>
         </form>
     </div>
-    <div>
-        <h1>Update Data</h1>
+    <div class="update_sec">
+        <h3>Update Data</h3>
         <button id="update-btn" name="update-btn">Update Data</button>
     </div>
+</div>  
 
 
-</div>
 <div class="table_section">
     <h1>Document List</h1>
 
@@ -45,18 +45,18 @@
 
             </tr>
         </tbody>
-        <div id="contextMenu"
-            style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; padding: 5px;">
-            <ul>
-                <li><a href="#" id="renameAction">Rename</a></li>
-                <li><a href="#" id="deleteAction">Delete</a></li>
-            </ul>
-        </div>
 
         {% endfor %}
     </table>
 </div>
 
+<div id="contextMenu"
+    style="display: none; position: absolute; background-color: white; border: 1px solid #ccc; padding: 5px;">
+    <ul>
+        <li><a href="#" id="renameAction">Rename</a></li>
+        <li><a href="#" id="deleteAction">Delete</a></li>
+    </ul>
+</div>
 
 
 <script>

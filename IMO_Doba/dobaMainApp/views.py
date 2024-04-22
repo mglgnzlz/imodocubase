@@ -23,7 +23,8 @@ def doc_update(request):
 def home(request):
 
 #Scripts for HOME PAGE to Django Backend
-
+    documents = Document.objects.all() 
+    
     return render(request, "dobaMainPage/home.html", {'documents':documents})
 
 def translogs(request):

@@ -41,9 +41,36 @@ th {
 
 .content_section{
   margin: auto;
-  width: 50%;
-  padding: 10px;
+  width: 75%;
+  margin-left: 17.5%;
+  padding: 20px;
   font-family: Monaco,monospace;
+}
+
+.dbview_header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;  
+  border-bottom: 1px solid #ccc;
+}
+
+.search_sec{
+  flex: 0 0 75%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.search_sec input[type="text"]{
+  width: 75%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.update_sec{
+  flex: 0 0 25%;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 
@@ -82,12 +109,14 @@ th {
 
    /* SIDEBAR */
   .sidebar {
+    float: left;
     width: 200px; /* width for the sidebar */
     position: fixed; /* Fix the sidebar in place */
     height: 100%;
     overflow: auto;
     left: 0; /*  sidebar on the left side of the page */
     border-right: 3px solid #ddd;
+    box-sizing: border-box;
   }
   
   .sidebar a {
@@ -104,3 +133,20 @@ th {
     background-color: #e0e0e0;
   }
   
+
+
+.clearfix::after{
+  content: "";
+  display: table;
+  clear: both;
+}
+  /* Media query for smaller screens (e.g., up to 768px) */
+@media (max-width: 768px) {
+  .dbview-header {
+    flex-direction: column; /* Stack flex items vertically on smaller screens */
+  }
+
+  .search-sec, .update-sec {
+    flex-basis: 100%; /* Full width for both sections on smaller screens */
+  }
+}
