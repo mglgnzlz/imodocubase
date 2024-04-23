@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound,Http404
 from .models import Document
 from django.http import JsonResponse
 from .parseDoc import update_data
@@ -63,13 +63,15 @@ def download_document(request, document_id):
     document = get_object_or_404(Document, pk=document_id)
 
     # Get the file content from the document object
-    file_content = document.file_content
-
-    # Create HTTP response for file download
-    response = HttpResponse(file_content, content_type='application/octet-stream')
-    response['Content-Disposition'] = f'attachment; filename="{document.document_name}"'
-
-    return response
+    file_path = document.file_path
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type = 'appication/octet-stream')
+            response['Content-Disposition'] = 'inline; filename =' + os.path.basename(file_path)
+            return response
+    raise Http404
+    
+            
 
 def rename_doc(request, document_id):
     document = get_object_or_404(Document, id=document_id)
