@@ -1,36 +1,100 @@
-{% extends 'dobaMainPage/base.html' %}
+{% extends 'dobaMainPage/base.html' %} {% block content %}
+<div class>
+  <div class="search">
+    <form
+      action="{%url 'doc_update' %}"
+      method="GET">
+      <button
+        id="back_btn"
+        type="submit">
+        BACK
+      </button>
+    </form>
+    <h1>Search Results for "{{ query }}"</h1>
+  </div>
 
-{% block content %}
-<div>
-    <h1> Search Results for "{{ query }}"</h1>
-    {% if results %}
+  {% if results %}
+  <div class="table_section">
     <table>
-        <thead>
-            <tr>
-                <th>Document Name</th>
-                <th>Document Type</th>
-                <th>Supplier</th>
-                <th>Date</th>
-                <th>Download</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Django loop function for each document in Document module, via views.py -->
-            {% for document in results %}
-            <tr class="document" id="document {{ document.id }}" data-document-id="{{ document.id }}">
-                <td>{{ document.document_name }}</td>
-                <td>{{ document.document_type }}</td>
-                <td>{{ document.supplier }}</td>
-                <td>{{ document.date }}</td>
-                <td><a href="{% url 'download_document' document.id %}" class="btn btn-primary">Download</a></td>
-
-            </tr>
-        </tbody>
-
-        {% endfor %}
+      <thead>
+        <tr>
+          <th>Document Name</th>
+          <th>Document Type</th>
+          <th>Supplier</th>
+          <th>Date</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Django loop function for each document in Document module, via views.py -->
+        {% for document in results %}
+        <tr
+          class="document"
+          id="document {{ document.id }}"
+          data-document-id="{{ document.id }}">
+          <td>{{ document.document_name }}</td>
+          <td>{{ document.document_type }}</td>
+          <td>{{ document.supplier }}</td>
+          <td>{{ document.date }}</td>
+          <td>
+            <a
+              href="{% url 'download_document' document.id %}"
+              class="btn btn-primary"
+              >Download</a
+            >
+          </td>
+        </tr>
+      </tbody>
+      {% endfor %}
     </table>
-    {% else %}
-    <p> No results found </p>
-    {% endif %}
+  </div>
+
+  <div class="pagination">
+    <ul class="page">
+      {% if results.has_previous %}
+      <a href="?{% if query %}query={{query}}&{% endif %}page=1">
+        <li>FIRST</li>
+      </a>
+
+      {% if results.number|add:"-1" > 1 %}
+      <a
+        href="?{% if query %}query={{query}}&{% endif %}page={{results.number|add:'-2'}}">
+        <li>{{results.number|add:"-2"}}</li>
+      </a>
+      {% endif %} {% if results.number > 1 %}
+      <a
+        href="?{% if query %}query={{query}}&{% endif %}page={{results.number|add:'-1'}}">
+        <li>{{results.number|add:"-1"}}</li>
+      </a>
+      {% endif %} {% endif %}
+      <a
+        href="?{% if query %}query={{query}}&{% endif %}page={{results.number}}"
+        class="active">
+        <li>{{results.number}}</li>
+      </a>
+      {% if results.has_next and results.paginator.num_pages > results.number %}
+      <a
+        href="?{% if query %}query={{query}}&{% endif %}page={{results.number|add:'+1'}}">
+        <li>{{results.number|add:"+1"}}</li>
+      </a>
+      {% endif %} {% if results.paginator.num_pages > results.number|add:"+1" %}
+      <a
+        href="?{% if query %}query={{query}}&{% endif %}page={{results.number|add:'+2'}}">
+        <li>{{results.number|add:"+2"}}</li>
+      </a>
+      {% endif %} {% if results.has_next %}
+      <a
+        href="?{% if query %}query={{query}}&{% endif %}page={{results.paginator.num_pages}}">
+        <li>LAST</li>
+      </a>
+      {% endif %}
+    </ul>
+  </div>
+
+  {% else %}
+  <p>No results found</p>
+  {% endif %}
 </div>
+
+<div></div>
 {% endblock %}

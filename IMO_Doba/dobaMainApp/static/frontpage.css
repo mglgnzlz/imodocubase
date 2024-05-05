@@ -1,152 +1,394 @@
 body {
-    margin: 0; /* Reset default margin */
-    padding: 0; /* Reset default padding */
+  margin: 0; /* Reset default margin */
+  padding: 0; /* Reset default padding */
+  font-family: Monaco, monospace;
+}
+
+h1 {
+  margin: 32px 360px;
+  font-size: 56px;
+}
+
+h2,
+h3 {
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+/* TOP NAV */
+.topnav {
+  overflow: hidden;
+
+  a {
+    float: left;
+    color: #9b1111;
+    text-align: left;
+    padding: 28px;
+    padding-left: 64px;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 700;
+  }
+}
+
+/* DIVIDER */
+.divider {
+  background-color: #2d1a18;
+  height: 8px;
+}
+
+/* SIDEBAR */
+.sidebar {
+  float: left;
+  width: 220px; /* width for the sidebar */
+  position: fixed; /* Fix the sidebar in place */
+  height: 100%;
+  overflow: auto;
+  border-right: 2px solid #2d1a18;
+  box-sizing: border-box;
+
+  h2 {
+    padding: 0px 20px;
+    font-weight: 700;
   }
 
+  h3 {
+    padding: 0px 20px;
+    font-weight: 700;
+  }
 
+  a {
+    padding: 8px 20px;
+    display: block;
+    color: #2d1a18;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+  }
 
-
-h4, h6 {
-   margin-bottom: 10px;
-   margin-top: 10px;
+  a:hover {
+    background-color: #cfc2c2;
+  }
 }
 
-/* Directory */
-h4 {
-  font-size: 20px;
-  padding: 16px 16px; /* Padding for headings */
-  margin-bottom: 5px;
-}
-
-/* Database + Reports&Logs */
-h6 {
-  font-size: 15px;
-  padding: 2px 16px; /* Padding for headings */
-}
-
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th, td {
-  border: 1px solid black;
-  padding: 8px;
-  text-align: left;
-}
-th {
-  background-color: #f2f2f2;
-}
-
-
-.content_section{
+.content_section {
   margin: auto;
-  width: 75%;
-  margin-left: 17.5%;
-  padding: 20px;
-  font-family: Monaco,monospace;
+  width: 80%;
+  margin-left: 15%;
+  padding: 20px 0px;
 }
 
-.dbview_header{
+/* DATABASE */
+.dbview_header {
   display: flex;
+  padding-bottom: 16px;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px;  
-  border-bottom: 1px solid #ccc;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #8a7e75;
+
+  h2 {
+    margin: 0px;
+  }
 }
 
-.search_sec{
-  flex: 0 0 75%;
-  padding: 10px;
+.search_sec {
+  justify-content: space-between;
+  flex: 70%;
   box-sizing: border-box;
+
+  button {
+    height: 36px;
+    width: 88px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: Monaco, monospace;
+    color: #f1f1f1;
+    background-color: #8a7e75;
+  }
 }
 
-.search_sec input[type="text"]{
-  width: 75%;
-  padding: 8px;
+.search_bar {
+  input[type="text"] {
+    font-size: 16px;
+    width: 80%;
+    padding: 8px;
+    border-radius: 8px;
+    font-family: Monaco, monospace;
+  }
+
+  ::placeholder {
+    font-size: 16px;
+    color: gray;
+  }
+}
+
+.update_sec {
+  text-align: right;
+  flex: 30%;
   box-sizing: border-box;
+
+  button {
+    height: 36px;
+    width: 120px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: Monaco, monospace;
+    color: #f1f1f1;
+    background-color: #8a7e75;
+  }
 }
 
-.update_sec{
-  flex: 0 0 25%;
-  padding: 10px;
-  box-sizing: border-box;
+/* TABLE */
+.table_section {
+  font-family: Monaco, monospace;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #8a7e75;
+
+  h1 {
+    margin: 0px;
+    padding-bottom: 20px;
+    color: #2d1a18;
+    font-size: 40px;
+    font-weight: 700;
+  }
+
+  h2 {
+    margin: 0px;
+    color: #2d1a18;
+    font-size: 40px;
+    font-weight: 700;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid #2d1a18;
+    padding: 8px;
+    color: #2d1a18;
+  }
+
+  th {
+    background-color: #cfc2c2;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  form {
+    display: flex;
+    padding-bottom: 16px;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 20px;
+
+    input {
+      font-size: 16px;
+    }
+
+    div label + input + label {
+      padding-left: 24px;
+    }
+  }
+
+  button {
+    height: 32px;
+    width: 180px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: Monaco, monospace;
+    color: #f1f1f1;
+    background-color: #8a7e75;
+  }
 }
-
-
 
 .document {
   cursor: pointer;
-  padding: 10px;
-  margin-bottom: 5px;
-  border: 1px solid #ccc;
 }
 
 .selected {
-  background-color: #f0f0f0;
-  border: 2px solid blue;
+  background-color: #f3f3f3;
+  border: 2px solid #9b1111;
 }
 
-   /* Font Family */
-.topnav, .sidebar, .topnav a, .sidebar a {
+#contextMenu {
+  display: none;
+  position: absolute;
+  background-color: #f3f3f3;
+  border: 2px solid #cfc2c2;
+  border-radius: 8px;
+  padding: 8px;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    margin-bottom: 5px;
+  }
+
+  a {
+    display: block;
+    color: #2d1a18;
+    text-decoration: none;
+    padding: 4px;
     font-family: Monaco, monospace;
   }
-  
-   /* Top Navigation*/
-  .topnav {
-    overflow: hidden;  
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+
+  a:hover {
+    background-color: #cfc2c2;
   }
-  
-  .topnav a {
-    float: left;
-    color: #DC143C;
-    text-align: center;
-    padding: 40px 20px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+
+  a {
     text-decoration: none;
-    font-size: 17px;
+  }
+}
+
+.page {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  border-radius: 8px;
+
+  li {
+    margin: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: #ededed;
   }
 
-   /* SIDEBAR */
-  .sidebar {
-    float: left;
-    width: 200px; /* width for the sidebar */
-    position: fixed; /* Fix the sidebar in place */
-    height: 100%;
-    overflow: auto;
-    left: 0; /*  sidebar on the left side of the page */
-    border-right: 3px solid #ddd;
-    box-sizing: border-box;
+  a li {
+    background-color: #2d1a18;
   }
-  
-  .sidebar a {
-    display: block; /* Make links behave like block elements */
-    color: black; 
-    text-align: left; 
-    padding: 8px 16px; 
-    text-decoration: none;
-    font-size: 14px;
-  }
-  
-   /* SIDEBAR HOVER */
-  .sidebar a:hover { 
-    background-color: #e0e0e0;
-  }
-  
 
+  a:hover li {
+    border-color: #9b1111;
+    color: #9b1111;
+  }
 
-.clearfix::after{
+  a.active li {
+    background-color: #9b1111;
+    border-color: #9b1111;
+    color: #f3f3f3;
+    font-weight: 700;
+  }
+}
+
+.rename_section {
+  h1 {
+    margin: 0px;
+    padding-bottom: 20px;
+    color: #2d1a18;
+    font-size: 40px;
+    font-weight: 700;
+  }
+
+  form {
+    padding: 0px;
+
+    label[for="new_document_name"] {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0px;
+      margin-top: 16px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+  }
+
+  div {
+    padding-bottom: 16px;
+    border-bottom: 2px solid #8a7e75;
+  }
+
+  button {
+    float: right;
+    margin: 16px 8px;
+    height: 40px;
+    width: 96px;
+    border: none;
+    border-radius: 8px;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: Monaco, monospace;
+    color: #f1f1f1;
+    background-color: #8a7e75;
+  }
+}
+
+.search {
+  display: flex;
+  align-items: center;
+
+  h1 {
+    margin: 0px;
+    padding-bottom: 20px;
+    color: #2d1a18;
+    font-size: 40px;
+    font-weight: 700;
+  }
+
+  button {
+    float: right;
+    margin: 16px 16px 36px 0px;
+    height: 32px;
+    width: 64px;
+    border: none;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: Monaco, monospace;
+    color: #f1f1f1;
+    background-color: #8a7e75;
+  }
+}
+
+div div p {
+  margin: 0px;
+  padding-bottom: 20px;
+  color: #2d1a18;
+  font-size: 40px;
+  font-weight: 700;
+}
+*/ .clearfix::after {
   content: "";
   display: table;
   clear: both;
 }
-  /* Media query for smaller screens (e.g., up to 768px) */
+/* Media query for smaller screens (e.g., up to 768px) */
 @media (max-width: 768px) {
   .dbview-header {
     flex-direction: column; /* Stack flex items vertically on smaller screens */
   }
 
-  .search-sec, .update-sec {
+  .search-sec,
+  .update-sec {
     flex-basis: 100%; /* Full width for both sections on smaller screens */
   }
 }
