@@ -1,53 +1,206 @@
-{% extends 'dobaMainPage/base.html' %}
+{% extends 'dobaMainPage/base.html' %} {% block content %}
 
-
-{% block content  %}
-<div class = "content_section">
-    <h1>Update Data</h1>
-    <button id="update-btn">Update Data</button>
-
-    <!-- JS Section, AJAX for file retrieval, reference doc_update via views.py -->
-    <script>
-        document.getElementById('update-btn').addEventListener('click', function() {
-            // Send an AJAX request to the Django view
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '{% url "doc_update" %}', true);
-            xhr.onload = function () {
-                if (xhr.status == 200) {
-                    alert('Data updated successfully');
-                } else {
-                    alert('Failed to update data');
-                }
-            };
-            xhr.send();
-        });
-    </script>
+<div class="dbview_header">
+  <div class="search_sec">
+    <form
+      class="search_bar"
+      action="{%url 'search_data' %}"
+      method="GET">
+      <input
+        type="text"
+        name="query"
+        placeholder="IAR/EPR_SUPPLIER_DATE" />
+      <button
+        id="search_btn"
+        type="submit">
+        SEARCH
+      </button>
+      </form>
   </div>
-  <div class = "table_section">
-    <h1>Document List</h1>
-    
-    <!-- TABLE CONTENTS -->
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Document Name</th>
-                <th>Document Type</th>
-                <th>Supplier</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Django loop function for each document in Document module, via views.py -->
-            {% for document in documents %}
-            <tr>
-                <td>{{ document.document_name }}</td>
-                <td>{{ document.document_type }}</td>
-                <td>{{ document.supplier }}</td>
-                <td>{{ document.date }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+  <div class="update_sec">
+    <button
+      id="update-btn"
+      name="update-btn">
+      UPDATE DATA
+    </button>
   </div>
+</div>
+
+<div class="table_section">
+  <h1>Document List</h1>
+
+  <!-- TABLE CONTENTS -->
+  <table>
+    <thead>
+      <tr>
+        <th>Document Name</th>
+        <th>Document Type</th>
+        <th>Supplier</th>
+        <th>Date</th>
+        <th>Download</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Django loop function for each document in Document module, via views.py -->
+      {% for document in documents %}
+      <tr
+        class="document"
+        id="document {{ document.id }}"
+        data-document-id="{{ document.id }}">
+        <td>{{ document.document_name }}</td>
+        <td>{{ document.document_type }}</td>
+        <td>{{ document.supplier }}</td>
+        <td>{{ document.date }}</td>
+        <td>
+          <a
+            href="{% url 'download_document' document.id %}"
+            class="btn btn-primary"
+            >Download</a
+          >
+        </td>
+      </tr>
+    </tbody>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="pagination">
+
+  <ul class="page">
+    {% if documents.has_previous %}
+      <a href="?page=1">
+        <li>FIRST</li>
+      </a>
+      {% if documents.number|add:"-1" > 1 %}
+      <a href="?page={{documents.number|add:'-2'}}">
+        <li>{{documents.number|add:"-2"}}</li>
+      </a>
+      {% endif %}
+
+      {% if documents.number > 1 %}
+      <a href="?page={{documents.number|add:'-1'}}">
+        <li>{{documents.number|add:"-1"}}</li>
+      </a>
+      {% endif %}
+    {% endif %}
+
+    <a href="?page={{documents.number}}" class="active">
+      <li>{{documents.number}}</li>
+    </a>
+
+    {% if documents.has_next %}
+      {% if documents.paginator.num_pages > documents.number %}
+      <a href="?page={{documents.number|add:'+1'}}">
+        <li>{{documents.number|add:"+1"}}</li>
+      </a>
+      {% endif %}
+
+      {% if documents.paginator.num_pages > documents.number|add:"+1" %}
+      <a href="?page={{documents.number|add:'+2'}}">
+        <li>{{documents.number|add:"+2"}}</li>
+      </a>
+      {% endif %}
+
+    <a href="?page={{documents.paginator.num_pages}}">
+      <li>LAST</li>
+    </a>
+    {% endif %}
+  </ul>
+</div>
+<div id="contextMenu">
+  <ul>
+    <li>
+      <a
+        href="#"
+        id="renameAction"
+        >Rename</a
+      >
+    </li>
+    <li>
+      <a
+        href="#"
+        id="deleteAction"
+        >Delete</a
+      >
+    </li>
+  </ul>
+</div>
+
+<script>
+  //UPDATE DOCUMENT CALLS
+  document.getElementById("update-btn").addEventListener("click", function () {
+    // Send an AJAX request to the Django view
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", '{% url "doc_update" %}', true);
+    xhr.onload = function () {
+      if (xhr.status == 200) {
+        alert("Data updated successfully");
+      } else {
+        alert("Failed to update data");
+      }
+    };
+    xhr.send();
+  });
+  //CONTEXT MENU LOADING AND DOCUMENT SELECTION LOGIC
+  document.addEventListener("DOMContentLoaded", function () {
+    const documents = document.querySelectorAll(".document");
+    const contextMenu = document.getElementById("contextMenu");
+    const renameAction = document.getElementById("renameAction");
+    const deleteAction = document.getElementById("deleteAction");
+
+    function actionURLS(documentId) {
+      if (renameAction && deleteAction) {
+        renameAction.href = "/rename/" + documentId;
+        deleteAction.href = "/delete/" + documentId;
+        console.log(documentId);
+      } else {
+        console.log("Null DocID");
+      }
+    }
+
+    function displayContextMenu(event, documentId) {
+      event.preventDefault();
+
+      var contextMenu = document.getElementById("contextMenu");
+
+      actionURLS(documentId);
+      console.log("Selected Document ID:", documentId);
+      contextMenu.style.display = "block";
+      contextMenu.style.left = event.pageX + "px";
+      contextMenu.style.top = event.pageY + "px";
+
+      document.addEventListener("click", function () {
+        contextMenu.style.display = "none";
+      });
+    }
+    documents.forEach(function (document) {
+      document.addEventListener("contextmenu", function (event) {
+        const documentId = document.dataset.documentId;
+        displayContextMenu(event, documentId);
+      });
+
+      document.addEventListener("click", function (event) {
+        // Retrieve document_id from data attribute
+        const documentId = document.dataset.documentId;
+
+        // Output document_id to console
+        console.log("Selected Document ID:", documentId);
+
+        if (document.classList.contains("selected")) {
+          document.classList.remove("selected");
+        } else {
+          documents.forEach(function (doc) {
+            doc.classList.remove("selected");
+          });
+          document.classList.add("selected");
+        }
+      });
+    });
+  });
+
+</script>
+
+<br></br>
+
 {% endblock %}

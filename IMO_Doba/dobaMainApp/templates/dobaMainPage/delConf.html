@@ -1,0 +1,13 @@
+{% extends 'dobaMainPage/base.html' %} {% block content %}
+<div class="rename_section">
+  <h1>Delete Document: {{ document.document_name }}</h1>
+  <form
+    method="post"
+    action="{% url 'delete_doc' document.id %}">
+    {% csrf_token %}
+    <div></div>
+    <button type="submit">Delete</button>
+  </form>
+</div>
+
+{% endblock %}
