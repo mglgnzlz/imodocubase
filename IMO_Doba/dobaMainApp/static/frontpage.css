@@ -23,7 +23,7 @@ h3 {
     float: left;
     color: #9b1111;
     text-align: left;
-    padding: 28px;
+    padding: 16px;
     padding-left: 64px;
     text-decoration: none;
     font-size: 24px;
@@ -41,8 +41,7 @@ h3 {
 .sidebar {
   float: left;
   width: 220px; /* width for the sidebar */
-  position: fixed; /* Fix the sidebar in place */
-  height: 100%;
+  height: 110vh;
   overflow: auto;
   border-right: 2px solid #2d1a18;
   box-sizing: border-box;
@@ -72,10 +71,10 @@ h3 {
 }
 
 .content_section {
-  margin: auto;
+  /* margin: auto; */
   width: 80%;
-  margin-left: 15%;
-  padding: 20px 0px;
+  margin-left: 20%;
+  padding: 16px 0px;
 }
 
 /* DATABASE */
@@ -83,8 +82,9 @@ h3 {
   display: flex;
   padding-bottom: 16px;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   border-bottom: 2px solid #8a7e75;
+  width: 95%;
 
   h2 {
     margin: 0px;
@@ -147,10 +147,11 @@ h3 {
   font-family: Monaco, monospace;
   padding-bottom: 16px;
   border-bottom: 2px solid #8a7e75;
+  width: 95%;
 
   h1 {
     margin: 0px;
-    padding-bottom: 20px;
+    padding-bottom: 12px;
     color: #2d1a18;
     font-size: 40px;
     font-weight: 700;
@@ -258,7 +259,6 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
 
   a {
     text-decoration: none;
@@ -272,6 +272,7 @@ h3 {
   flex-wrap: wrap;
   padding: 8px 16px;
   border-radius: 8px;
+  margin: 0px;
 
   li {
     margin: 8px;
@@ -298,6 +299,8 @@ h3 {
 }
 
 .rename_section {
+  width: 95%;
+
   h1 {
     margin: 0px;
     padding-bottom: 20px;
@@ -334,10 +337,6 @@ h3 {
   div {
     padding-bottom: 16px;
     border-bottom: 2px solid #8a7e75;
-
-    section {
-      padding-bottom: 16px;
-    }
   }
 
   button {
@@ -357,7 +356,7 @@ h3 {
 
 div input[type="text"] {
   font-size: 16px;
-  width: 80%;
+  width: 70%;
   padding: 8px;
   border-radius: 8px;
   font-family: Monaco, monospace;
@@ -397,6 +396,7 @@ div div p {
   font-size: 40px;
   font-weight: 700;
 }
+
 */ .clearfix::after {
   content: "";
   display: table;
