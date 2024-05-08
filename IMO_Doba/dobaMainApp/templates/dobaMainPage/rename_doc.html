@@ -1,12 +1,23 @@
-{% extends 'dobaMainPage/base.html' %}
+{% extends 'dobaMainPage/base.html' %} {% block content %}
 
-{% block content %}
-<h1>Rename Document: {{ document.document_name }}</h1>
-
-<form method="post" action="{% url 'rename_doc' document.id %}"> 
+<div class="rename_section">
+  <h1>Rename Document: {{ document.document_name }}</h1>
+  <form
+    class="rename_form"
+    method="post"
+    action="{% url 'rename_doc' document.id %}">
     {% csrf_token %}
-    <label for="new_document_name">New Document Name:</label>
-    {{ form.as_p }}
+    <div>
+      <section>
+        <label>Document Name: {{ document.document_name }} </label>
+      </section>
+      <label for="new_document_name"
+        >Document Name Format: IAR/EPR_SUPPLIER_DATE</label
+      >
+      {{ form.as_p }}
+    </div>
     <button type="submit">Save</button>
-</form>
+  </form>
+</div>
+
 {% endblock %}

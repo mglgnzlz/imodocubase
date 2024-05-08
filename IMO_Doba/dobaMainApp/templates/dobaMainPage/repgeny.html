@@ -1,45 +1,52 @@
-{% extends 'dobaMainPage/base.html' %}
+{% extends 'dobaMainPage/base.html' %} {% block content %}
 
-{% block content %}
-<h1> Report Generations </h1>
+<div class="table_section">
+  <h1>Report Generations</h1>
+  <form
+    method="post"
+    action="{% url 'rep_gen' %}">
+    {% csrf_token %}
+    <div>
+      <label for="start_date">Start Date:</label>
+      <input
+        type="date"
+        id="start_date"
+        name="start_date" />
+      <label for="end_date">End Date:</label>
+      <input
+        type="date"
+        id="end_date"
+        name="end_date" />
+    </div>
+
+    <button type="submit">Generate Report</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Document Name</th>
+        <th>Document Type</th>
+        <th>Supplier</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for document in queryset %}
+      <tr>
+        <td>{{ document.document_name }}</td>
+        <td>{{ document.document_type }}</td>
+        <td>{{ document.supplier }}</td>
+        <td>{{ document.date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 {% if error_message %}
 <script>
-    var errorMessage = "{{ error_message|escapejs }}";
-    alert(errorMessage);
+  var errorMessage = "{{ error_message|escapejs }}";
+  alert(errorMessage);
 </script>
-{% endif %}
-
-<form method="post" action="{% url 'rep_gen' %}">
-    {% csrf_token %}
-    <label for="start_date">Start Date:</label>
-    <input type="date" id="start_date" name="start_date">
-
-    <label for="end_date">End Date:</label>
-    <input type="date" id="end_date" name="end_date">
-
-    <button type="submit">Generate Report</button>
-</form>
-
-<table>
-    <thead>
-        <tr>
-            <th>Document Name</th>
-            <th>Document Type</th>
-            <th>Supplier</th>
-            <th>Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for document in queryset %}
-        <tr>
-            <td>{{ document.document_name }}</td>
-            <td>{{ document.document_type }}</td>
-            <td>{{ document.supplier }}</td>
-            <td>{{ document.date }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-{% endblock %}
+{% endif %} {% endblock %}
