@@ -8,9 +8,6 @@
     action="{% url 'rename_doc' document.id %}">
     {% csrf_token %}
     <div>
-      <section>
-        <label>Document Name: {{ document.document_name }} </label>
-      </section>
       <label for="new_document_name"
         >Document Name Format: IAR/EPR_SUPPLIER_DATE</label
       >
