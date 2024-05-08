@@ -22,7 +22,7 @@ def doc_update(request):
     # Render the template
 
     # Set Up Pagination
-    num_paginator = Paginator(Document.objects.all(), 5)
+    num_paginator = Paginator(Document.objects.all(), 10)
     page = request.GET.get('page')
 
     documents = num_paginator.get_page(page)
@@ -134,28 +134,6 @@ def delete_doc(request, document_id):
 
     return render(request, 'dobaMainPage/delConf.html', {'document': document})
 
-
-# def search_data(request):
-#     query = request.GET.get('query')
-#     documents = Document.objects.all()
-
-#     num_paginator = Paginator(documents, 3)
-#     page = request.GET.get('page')
-#     results = num_paginator.get_page(page)
-
-#     if query:
-#         results = Document.objects.filter(document_type__icontains=query)
-
-#     else:
-#         results = []
-
-#     context = {
-#         'query': query,
-#         'results': results,
-#         # 'documents': documents,
-#     }
-
-#     return render(request, "dobaMainPage/searchPage.html", context)
 
 def search_data(request):
     query = request.GET.get("query")

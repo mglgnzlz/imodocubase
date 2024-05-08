@@ -309,8 +309,9 @@ h3 {
   form {
     padding: 0px;
 
+    label,
     label[for="new_document_name"] {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 700;
     }
 
@@ -320,11 +321,23 @@ h3 {
       font-size: 20px;
       font-weight: 700;
     }
+
+    input {
+      font-size: 16px;
+      width: 80%;
+      padding: 8px;
+      border-radius: 8px;
+      font-family: Monaco, monospace;
+    }
   }
 
   div {
     padding-bottom: 16px;
     border-bottom: 2px solid #8a7e75;
+
+    section {
+      padding-bottom: 16px;
+    }
   }
 
   button {
@@ -340,6 +353,14 @@ h3 {
     color: #f1f1f1;
     background-color: #8a7e75;
   }
+}
+
+div input[type="text"] {
+  font-size: 16px;
+  width: 80%;
+  padding: 8px;
+  border-radius: 8px;
+  font-family: Monaco, monospace;
 }
 
 .search {
