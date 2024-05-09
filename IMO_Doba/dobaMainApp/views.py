@@ -80,9 +80,16 @@ def rep_gen(request):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
 
+
+
+        queryset = Document.objects.filter(
+                date__range=[start_date, end_date])
+        
+        
     # If no sorting or filtering parameters are provided, return all documents
         if not sort_date and not sort_supplier and not file_type:
-            documents = Document.objects.all()
+            queryset = Document.objects.filter(
+                date__range=[start_date, end_date])
         else:
             # Determine the sorting order
             date_order = '-' if sort_date == 'descending' else ''
@@ -90,16 +97,16 @@ def rep_gen(request):
 
         # Filter and sort the documents
         if 'MISC' in file_type:
-            file_type.remove('MISC')
-            documents = Document.objects.exclude(document_type__in=file_type)
+            queryset = Document.objects.exclude(document_type__in=['IAR', 'EPR'])
         else:
-            documents = Document.objects.filter(document_type__in=file_type)
+            queryset = Document.objects.filter(document_type__in=file_type)
+            
 
-        documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
+
+        queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
 
             # Perform query to retrieve data based on date range
-        queryset = Document.objects.filter(
-                date__range=[start_date, end_date])
+        
             
         print(queryset)
 
@@ -113,7 +120,7 @@ def rep_gen(request):
             'page_obj': page_obj,
             'sort_date': sort_date,
             'sort_supplier': sort_supplier,
-            'file_type': ['IAR', 'EPR', 'MISC'],
+            'file_type': file_type,
             'start_date': start_date,
             'end_date': end_date,
         }
