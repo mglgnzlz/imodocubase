@@ -69,26 +69,62 @@ def rep_gen(request):
     start_date = None
     queryset = None
     end_date = None
+    date_order = ''
+    supplier_order = ''
 
     try:
+        
+        sort_date = request.GET.get('sort-date', None)
+        sort_supplier = request.GET.get('sort-supplier', None)
+        file_type = request.GET.getlist('file-type')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
 
-        if request.method == 'POST':
-            start_date = request.POST.get('start_date')
-            end_date = request.POST.get('end_date')
+    # If no sorting or filtering parameters are provided, return all documents
+        if not sort_date and not sort_supplier and not file_type:
+            documents = Document.objects.all()
+        else:
+            # Determine the sorting order
+            date_order = '-' if sort_date == 'descending' else ''
+            supplier_order = '-' if sort_supplier == 'desc' else ''
+
+        # Filter and sort the documents
+        if 'MISC' in file_type:
+            file_type.remove('MISC')
+            documents = Document.objects.exclude(document_type__in=file_type)
+        else:
+            documents = Document.objects.filter(document_type__in=file_type)
+
+        documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
 
             # Perform query to retrieve data based on date range
-            queryset = Document.objects.filter(
+        queryset = Document.objects.filter(
                 date__range=[start_date, end_date])
+            
+        print(queryset)
 
-            # Return response (render report template or return data as JSON/XML)
-            return render(request, 'dobaMainPage/repgeny.html', {'queryset': queryset})
+            # Set up pagination
+        paginator = Paginator(queryset, 10)  # Show 10 documents per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        
+        context = {
+            'page_obj': page_obj,
+            'sort_date': sort_date,
+            'sort_supplier': sort_supplier,
+            'file_type': ['IAR', 'EPR', 'MISC'],
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+        
+        return render(request, 'dobaMainPage/repgeny.html', context)
 
     except Exception as e:
         error_message = "An error occurred: " + str(e)
         return render(request, 'dobaMainPage/repgeny.html', {'error_message': error_message})
 
-    return render(request, 'dobaMainPage/repgeny.html', {'queryset': queryset})
-
+ 
 
 def download_document(request, document_id):
     # Retrieve the document object from the database
