@@ -5,13 +5,14 @@ from .models import Document
 
 
 def parse_folder(folder_path):
+    existing_filenames = os.listdir(folder_path)
     for filename in os.listdir(folder_path):
         try:
             if filename.endswith('.pdf'):
                 file_path = os.path.join(folder_path, filename)
                 parseIndex = filename.split("_")
                 if len(parseIndex) >= 3:
-                    document_name = "_".join(parseIndex[:-1])
+                    document_name = filename
                     document_type = parseIndex[0]
                     supplier = parseIndex[1]
                     date_str = parseIndex[2].split('.')[0]

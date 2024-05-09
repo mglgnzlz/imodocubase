@@ -27,6 +27,28 @@
   </div>
 </div>
 
+<div class="filter_section">
+  <h2>Filters:</h2>
+  <select id="sort-date">
+    <option value="ascending">Date (Ascending)</option>
+    <option value="descending">Date (Descending)</option>
+  </select>
+  <select id="sort-supplier">
+    <option value="asc">Supplier (Ascending)</option>
+    <option value="desc">Supplier (Descending)</option>
+  </select>
+  <label for="file-type">File Type:</label>
+  <input type="checkbox" id="iar" name="file-type" value="iar">
+  <label for="iar">IAR</label>
+  <input type="checkbox" id="epr" name="file-type" value="epr">
+  <label for="epr">EPR</label>
+  <input type="checkbox" id="misc" name="file-type" value="misc">
+  <label for="misc">MISC</label>
+</div>
+
+
+
+
 <div class="table_section">
   <h1>Document List</h1>
 
@@ -142,6 +164,7 @@
     };
     xhr.send();
   });
+  
   //CONTEXT MENU LOADING AND DOCUMENT SELECTION LOGIC
   document.addEventListener("DOMContentLoaded", function () {
     const documents = document.querySelectorAll(".document");
