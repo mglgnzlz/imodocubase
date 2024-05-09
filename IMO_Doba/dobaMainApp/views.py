@@ -17,38 +17,36 @@ def index(request):
 def doc_update(request):
     # Fetch data from the database or perform any other operations
     update_data(request)
-    # Example: Fetch all documents from the database
-    documents = Document.objects.all()
-    
-    
-    # Sorting
-    sort_date = request.GET.get('sort-date')  # ascending or descending
-    sort_supplier = request.GET.get('sort-supplier')  # asc or desc
 
-    if sort_date == 'ascending':
-        documents = documents.order_by('date')
-    elif sort_date == 'descending':
-        documents = documents.order_by('-date')
+    sort_date = request.GET.get('sort-date', None)
+    sort_supplier = request.GET.get('sort-supplier', None)
+    file_type = request.GET.getlist('file-type')
 
-    if sort_supplier == 'asc':
-        documents = documents.order_by('supplier')
-    elif sort_supplier == 'desc':
-        documents = documents.order_by('-supplier')
+    # If no sorting or filtering parameters are provided, return all documents
+    if not sort_date and not sort_supplier and not file_type:
+        documents = Document.objects.all()
+    else:
+        # Determine the sorting order
+        date_order = '-' if sort_date == 'descending' else ''
+        supplier_order = '-' if sort_supplier == 'desc' else ''
 
-    # Filtering by file type
-    file_types = request.GET.getlist('file-type')  # List of selected file types
+        # Filter and sort the documents
+        if 'MISC' in file_type:
+            file_type.remove('MISC')
+            documents = Document.objects.exclude(document_type__in=file_type)
+        else:
+            documents = Document.objects.filter(document_type__in=file_type)
 
-    if file_types:
-        documents = documents.filter(document_type__in=file_types)
-    
-    
+        documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
     
     # Set Up Pagination
-    num_paginator = Paginator(Document.objects.all(), 10)
+    num_paginator = Paginator(documents, 10)  # Use the sorted and filtered documents
     page = request.GET.get('page')
 
     documents = num_paginator.get_page(page)
     return render(request, "dobaMainPage/dbview.html", {'documents': documents})
+
+
 
 
 def home(request):

@@ -28,22 +28,27 @@
 </div>
 
 <div class="filter_section">
-  <h2>Filters:</h2>
-  <select id="sort-date">
-    <option value="ascending">Date (Ascending)</option>
-    <option value="descending">Date (Descending)</option>
-  </select>
-  <select id="sort-supplier">
-    <option value="asc">Supplier (Ascending)</option>
-    <option value="desc">Supplier (Descending)</option>
-  </select>
-  <label for="file-type">File Type:</label>
-  <input type="checkbox" id="iar" name="file-type" value="iar">
-  <label for="iar">IAR</label>
-  <input type="checkbox" id="epr" name="file-type" value="epr">
-  <label for="epr">EPR</label>
-  <input type="checkbox" id="misc" name="file-type" value="misc">
-  <label for="misc">MISC</label>
+  <form action="{% url 'doc_update' %}" method="GET">
+    <!-- Your existing inputs... -->
+    <select name="sort-date">
+      <option value="ascending">Date (Ascending)</option>
+      <option value="descending">Date (Descending)</option>
+    </select>
+    <select name="sort-supplier">
+      <option value="asc">Supplier (A-Z)</option>
+      <option value="desc">Supplier (Z-A)</option>
+    </select>
+    <label for="file-type">File Type:</label>
+    <input type="checkbox" id="iar" name="file-type" value="IAR">
+    <label for="iar">IAR</label>
+    <input type="checkbox" id="epr" name="file-type" value="EPR">
+    <label for="epr">EPR</label>
+    <input type="checkbox" id="misc" name="file-type" value="MISC">
+    <label for="misc">MISC</label>
+    <!-- Your existing inputs... -->
+    <button type="submit">Submit</button>
+  </form>
+  
 </div>
 
 
@@ -88,48 +93,50 @@
 </div>
 
 <div class="pagination">
-
   <ul class="page">
     {% if documents.has_previous %}
-      <a href="?page=1">
+      <a href="?page=1&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
         <li>FIRST</li>
       </a>
       {% if documents.number|add:"-1" > 1 %}
-      <a href="?page={{documents.number|add:'-2'}}">
+      <a href="?page={{documents.number|add:'-2'}}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
         <li>{{documents.number|add:"-2"}}</li>
       </a>
       {% endif %}
 
       {% if documents.number > 1 %}
-      <a href="?page={{documents.number|add:'-1'}}">
+      <a href="?page={{documents.number|add:'-1'}}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
         <li>{{documents.number|add:"-1"}}</li>
       </a>
       {% endif %}
     {% endif %}
 
-    <a href="?page={{documents.number}}" class="active">
+    <a href="?page={{documents.number}}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}" class="active">
       <li>{{documents.number}}</li>
     </a>
 
     {% if documents.has_next %}
       {% if documents.paginator.num_pages > documents.number %}
-      <a href="?page={{documents.number|add:'+1'}}">
+      <a href="?page={{documents.number|add:'+1'}}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
         <li>{{documents.number|add:"+1"}}</li>
       </a>
       {% endif %}
 
       {% if documents.paginator.num_pages > documents.number|add:"+1" %}
-      <a href="?page={{documents.number|add:'+2'}}">
+      <a href="?page={{documents.number|add:'+2'}}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
         <li>{{documents.number|add:"+2"}}</li>
       </a>
       {% endif %}
 
-    <a href="?page={{documents.paginator.num_pages}}">
+    <a href="?page={{ documents.paginator.num_pages }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
       <li>LAST</li>
     </a>
     {% endif %}
   </ul>
 </div>
+
+
+
 <div id="contextMenu">
   <ul>
     <li>
