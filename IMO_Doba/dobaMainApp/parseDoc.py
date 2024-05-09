@@ -11,7 +11,7 @@ def parse_folder(folder_path):
                 file_path = os.path.join(folder_path, filename)
                 parseIndex = filename.split("_")
                 if len(parseIndex) >= 3:
-                    document_name = filename
+                    document_name = "_".join(parseIndex[:-1])
                     document_type = parseIndex[0]
                     supplier = parseIndex[1]
                     date_str = parseIndex[2].split('.')[0]
@@ -33,7 +33,8 @@ def parse_folder(folder_path):
                         print(f"Document {document_name} saved to the database.")
         except Exception as e:
             print(f"Error processing {filename}: {e}")
-
+    documents_to_delete = Document.objects.exclude(document_name__in=existing_filenames)
+    documents_to_delete.delete()
 
 def update_data(request):
     folder_path = r'C:\Users\Carl\Documents\SCHOOLWORKS\IMO_Doba\imodocubase\IMO_Doba\sample_DB'
