@@ -1,4 +1,7 @@
 {% extends 'dobaMainPage/base.html' %} {% block content %}
+{%load static%}
+
+<script src="{% static 'js/urlStore.js' %}"></script>
 
 
 
@@ -86,38 +89,10 @@
   </ul>
 </div>
 
-
-
-
-
-
 {% if error_message %}
 <script>
   var errorMessage = "{{ error_message|escapejs }}";
   alert(errorMessage);
 </script>
-{% endif %} {% endblock %}
-
-
-<script>
-  $(document).ready(function() {
-  // Check if there's any data in the local storage and set the form values
-  if(localStorage.getItem('start_date')) {
-    $('#start_date').val(localStorage.getItem('start_date'));
-  }
-  if(localStorage.getItem('end_date')) {
-    $('#end_date').val(localStorage.getItem('end_date'));
-  }
-  if(localStorage.getItem('file_type')) {
-    $('#file_type').val(localStorage.getItem('file_type'));
-  }
-
-  // When the form is submitted, store the form data in the local storage
-  $('form').on('submit', function() {
-    localStorage.setItem('start_date', $('#start_date').val());
-    localStorage.setItem('end_date', $('#end_date').val());
-    localStorage.setItem('file_type', $('#file_type').val());
-  });
-});
-
-</script>
+{% endif %}
+{% endblock %}
