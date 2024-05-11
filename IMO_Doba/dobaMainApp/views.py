@@ -64,58 +64,46 @@ def translogs(request):
     return render(request, "dobaMainPage/translogs.html", {'documents': documents})
 
 
+from django.db.models import Q
+
 def rep_gen(request):
     error_message = None
-    start_date = None
-    queryset = None
-    end_date = None
-    date_order = ''
-    supplier_order = ''
+    context = {}
 
     try:
-        
+        # Get request parameters
         sort_date = request.GET.get('sort-date', None)
         sort_supplier = request.GET.get('sort-supplier', None)
         file_type = request.GET.getlist('file-type')
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
 
+        # Base queryset
+        queryset = Document.objects.all()
 
+        # Apply date range filter
+        if start_date and end_date:
+            queryset = queryset.filter(date__range=[start_date, end_date])
 
-        queryset = Document.objects.filter(
-                date__range=[start_date, end_date])
-        
-        
-    # If no sorting or filtering parameters are provided, return all documents
-        if not sort_date and not sort_supplier and not file_type:
-            queryset = Document.objects.filter(
-                date__range=[start_date, end_date])
-        else:
-            # Determine the sorting order
-            date_order = '-' if sort_date == 'descending' else ''
-            supplier_order = '-' if sort_supplier == 'desc' else ''
-
-        # Filter and sort the documents
+        # Apply file type filter
         if 'MISC' in file_type:
-            queryset = Document.objects.exclude(document_type__in=['IAR', 'EPR'])
+            queryset = queryset.exclude(document_type__in=['IAR', 'EPR'])
         else:
-            queryset = Document.objects.filter(document_type__in=file_type)
-            
+            queryset = queryset.filter(document_type__in=file_type)
 
+        # Determine sorting order
+        date_order = '-' if sort_date == 'descending' else ''
+        supplier_order = '-' if sort_supplier == 'desc' else ''
 
+        # Sort the queryset
         queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
 
-            # Perform query to retrieve data based on date range
-        
-            
-        print(queryset)
-
-            # Set up pagination
+        # Paginate the queryset
         paginator = Paginator(queryset, 10)  # Show 10 documents per page
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        
+        # Prepare context data
         context = {
             'page_obj': page_obj,
             'sort_date': sort_date,
@@ -124,12 +112,12 @@ def rep_gen(request):
             'start_date': start_date,
             'end_date': end_date,
         }
-        
-        return render(request, 'dobaMainPage/repgeny.html', context)
 
     except Exception as e:
         error_message = "An error occurred: " + str(e)
-        return render(request, 'dobaMainPage/repgeny.html', {'error_message': error_message})
+        context['error_message'] = error_message
+
+    return render(request, 'dobaMainPage/repgeny.html', context)
 
  
 
