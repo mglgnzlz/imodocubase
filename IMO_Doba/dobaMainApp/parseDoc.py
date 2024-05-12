@@ -1,8 +1,8 @@
 import os
+import re
 from datetime import datetime
 from django.http import HttpResponse
 from .models import Document
-
 
 def parse_folder(folder_path):
     existing_filenames = os.listdir(folder_path)
@@ -10,12 +10,17 @@ def parse_folder(folder_path):
         try:
             if filename.endswith('.pdf'):
                 file_path = os.path.join(folder_path, filename)
-                parseIndex = filename.split("_")
+                filename_without_spaces = filename.replace(" ", "")
+                parseIndex = filename_without_spaces.split("_")
                 if len(parseIndex) >= 3:
                     document_name = filename
                     document_type = parseIndex[0]
                     supplier = parseIndex[1]
                     date_str = parseIndex[2].split('.')[0]
+                    # Extract only the date from date_str
+                    date_match = re.search(r'\d{4}-\d{2}-\d{2}', date_str)
+                    if date_match:
+                        date_str = date_match.group(0)
                     date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
                     existing_document = Document.objects.filter(

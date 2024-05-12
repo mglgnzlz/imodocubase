@@ -2,7 +2,7 @@
 {% extends 'dobaMainPage/base.html' %} {% block content %}
 {%load static%}
 
-<script src="{% static 'js/updateBtn.js' %}"></script>
+
 <script src="{% static 'js/contextMenu.js' %}"></script>
 
 <div class="dbview_header">
@@ -147,6 +147,20 @@
   </ul>
 </div>
 
-<br></br>
+<script>
+    document.getElementById("update-btn").addEventListener("click", function () {
+    // Send an AJAX request to the Django view
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", '{% url "doc_update" %}', true);
+    xhr.onload = function () {
+      if (xhr.status == 200) {
+        alert("Data updated successfully");
+      } else {
+        alert("Failed to update data");
+      }
+    };
+    xhr.send();
+  });
+</script>
 
 {% endblock %}

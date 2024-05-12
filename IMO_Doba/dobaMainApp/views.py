@@ -30,17 +30,22 @@ def doc_update(request):
         date_order = '-' if sort_date == 'descending' else ''
         supplier_order = '-' if sort_supplier == 'desc' else ''
         
-        
-        if 'MISC' in file_type:
+        if not file_type:
+            documents = Document.objects.all()
+        elif 'MISC' in file_type:
             documents = Document.objects.exclude(document_type__in=['IAR', 'EPR'])
         else:
             documents = Document.objects.filter(document_type__in=file_type)
-            
+        
+        
         documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
     
     # Set Up Pagination
     num_paginator = Paginator(documents, 10)  # Use the sorted and filtered documents
     page = request.GET.get('page')
+    
+    documents = num_paginator.get_page(page)
+    
     
     context = {
         'documents': documents, 
@@ -49,7 +54,6 @@ def doc_update(request):
         'sort_supplier': sort_supplier
     }
     
-    documents = num_paginator.get_page(page)
     return render(request, "dobaMainPage/dbview.html", context)
 
 
