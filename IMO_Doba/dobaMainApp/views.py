@@ -17,16 +17,46 @@ def index(request):
 def doc_update(request):
     # Fetch data from the database or perform any other operations
     update_data(request)
-    # Example: Fetch all documents from the database
-    documents = Document.objects.all()
-    # Render the template
 
+    sort_date = request.GET.get('sort-date', None)
+    sort_supplier = request.GET.get('sort-supplier', None)
+    file_type = request.GET.getlist('file-type[]')
+
+    # If no sorting or filtering parameters are provided, return all documents
+    if not sort_date and not sort_supplier and not file_type:
+        documents = Document.objects.all()
+    else:
+        # Determine the sorting order
+        date_order = '-' if sort_date == 'descending' else ''
+        supplier_order = '-' if sort_supplier == 'desc' else ''
+        
+        if not file_type:
+            documents = Document.objects.all()
+        elif 'MISC' in file_type:
+            documents = Document.objects.exclude(document_type__in=['IAR', 'EPR'])
+        else:
+            documents = Document.objects.filter(document_type__in=file_type)
+        
+        
+        documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
+    
     # Set Up Pagination
-    num_paginator = Paginator(Document.objects.all(), 10)
+    num_paginator = Paginator(documents, 10)  # Use the sorted and filtered documents
     page = request.GET.get('page')
-
+    
     documents = num_paginator.get_page(page)
-    return render(request, "dobaMainPage/dbview.html", {'documents': documents})
+    
+    
+    context = {
+        'documents': documents, 
+        'file_type': file_type, 
+        'sort_date': sort_date, 
+        'sort_supplier': sort_supplier
+    }
+    
+    return render(request, "dobaMainPage/dbview.html", context)
+
+
 
 
 def home(request):
@@ -44,31 +74,62 @@ def translogs(request):
     return render(request, "dobaMainPage/translogs.html", {'documents': documents})
 
 
+from django.db.models import Q
+
 def rep_gen(request):
     error_message = None
-    start_date = None
-    queryset = None
-    end_date = None
+    context = {}
 
     try:
+        # Get request parameters
+        sort_date = request.GET.get('sort-date', None)
+        sort_supplier = request.GET.get('sort-supplier', None)
+        file_type = request.GET.getlist('file-type')
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
 
-        if request.method == 'POST':
-            start_date = request.POST.get('start_date')
-            end_date = request.POST.get('end_date')
+        # Base queryset
+        queryset = Document.objects.all()
 
-            # Perform query to retrieve data based on date range
-            queryset = Document.objects.filter(
-                date__range=[start_date, end_date])
+        # Apply date range filter
+        if start_date and end_date:
+            queryset = queryset.filter(date__range=[start_date, end_date])
 
-            # Return response (render report template or return data as JSON/XML)
-            return render(request, 'dobaMainPage/repgeny.html', {'queryset': queryset})
+        # Apply file type filter
+        if 'MISC' in file_type:
+            queryset = queryset.exclude(document_type__in=['IAR', 'EPR'])
+        else:
+            queryset = queryset.filter(document_type__in=file_type)
+
+        # Determine sorting order
+        date_order = '-' if sort_date == 'descending' else ''
+        supplier_order = '-' if sort_supplier == 'desc' else ''
+
+        # Sort the queryset
+        queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
+
+        # Paginate the queryset
+        paginator = Paginator(queryset, 10)  # Show 10 documents per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        # Prepare context data
+        context = {
+            'page_obj': page_obj,
+            'sort_date': sort_date,
+            'sort_supplier': sort_supplier,
+            'file_type': file_type,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
 
     except Exception as e:
         error_message = "An error occurred: " + str(e)
-        return render(request, 'dobaMainPage/repgeny.html', {'error_message': error_message})
+        context['error_message'] = error_message
 
-    return render(request, 'dobaMainPage/repgeny.html', {'queryset': queryset})
+    return render(request, 'dobaMainPage/repgeny.html', context)
 
+ 
 
 def download_document(request, document_id):
     # Retrieve the document object from the database
@@ -140,7 +201,8 @@ def search_data(request):
     if query:
 
         results = Document.objects.filter(
-            document_type__icontains=query).order_by('id')
+            document_name__icontains=query).order_by('id')
+        
 
         page = request.GET.get('page', 1)
         num_paginator = Paginator(results, 5)

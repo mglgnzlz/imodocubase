@@ -1,26 +1,44 @@
 {% extends 'dobaMainPage/base.html' %} {% block content %}
+{%load static%}
+
+<script src="{% static 'js/urlStore.js' %}"></script>
+
+
 
 <div class="table_section">
   <h1>Report Generations</h1>
-  <form
-    method="post"
-    action="{% url 'rep_gen' %}">
-    {% csrf_token %}
-    <div>
-      <label for="start_date">Start Date:</label>
-      <input
-        type="date"
-        id="start_date"
-        name="start_date" />
-      <label for="end_date">End Date:</label>
-      <input
-        type="date"
-        id="end_date"
-        name="end_date" />
-    </div>
 
-    <button type="submit">Generate Report</button>
-  </form>
+  <div class="filter_section">
+    <form action="{% url 'rep_gen' %}" method="GET">
+      <!-- Date inputs... -->
+      <label for="start_date">Start Date:</label>
+      <input type="date" id="start_date" name="start_date" />
+      <label for="end_date">End Date:</label>
+      <input type="date" id="end_date" name="end_date" />
+
+      <!-- Sorting and filtering inputs... -->
+      <select name="sort-date">
+        <option value="ascending">Date (Ascending)</option>
+        <option value="descending">Date (Descending)</option>
+      </select>
+      <select name="sort-supplier">
+        <option value="asc">Supplier (A-Z)</option>
+        <option value="desc">Supplier (Z-A)</option>
+      </select>
+      <label for="file-type">File Type:</label>
+      <input type="checkbox" id="iar" name="file-type" value="IAR">
+      <label for="iar">IAR</label>
+      <input type="checkbox" id="epr" name="file-type" value="EPR">
+      <label for="epr">EPR</label>
+      <input type="checkbox" id="misc" name="file-type" value="MISC">
+      <label for="misc">MISC</label>
+
+      <!-- Submit button -->
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+
 
   <table>
     <thead>
@@ -32,7 +50,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for document in queryset %}
+      {% for document in page_obj %}
       <tr>
         <td>{{ document.document_name }}</td>
         <td>{{ document.document_type }}</td>
@@ -44,9 +62,37 @@
   </table>
 </div>
 
+
+<div class="pagination">
+  <ul class="page">
+    {% if page_obj.has_previous %}
+    <a href="?page=1&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
+      <li>FIRST</li>
+    </a>
+    {% endif %}
+    {% for i in page_obj.paginator.page_range %}
+      {% if page_obj.number == i %}
+        <a href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}" class="active">
+          <li>{{ i }}</li>
+        </a>
+      {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
+        <a href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
+          <li>{{ i }}</li>
+        </a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.paginator.num_pages }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
+      <li>LAST</li>
+    </a>
+    {% endif %}
+  </ul>
+</div>
+
 {% if error_message %}
 <script>
   var errorMessage = "{{ error_message|escapejs }}";
   alert(errorMessage);
 </script>
-{% endif %} {% endblock %}
+{% endif %}
+{% endblock %}
