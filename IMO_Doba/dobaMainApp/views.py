@@ -197,7 +197,8 @@ def search_data(request):
     if query:
 
         results = Document.objects.filter(
-            document_type__icontains=query).order_by('id')
+            document_name__icontains=query).order_by('id')
+        
 
         page = request.GET.get('page', 1)
         num_paginator = Paginator(results, 5)
