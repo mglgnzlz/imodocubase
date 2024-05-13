@@ -4,6 +4,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from .models import Document
 
+
 def parse_folder(folder_path):
     existing_filenames = os.listdir(folder_path)
     for filename in os.listdir(folder_path):
@@ -26,7 +27,8 @@ def parse_folder(folder_path):
                     existing_document = Document.objects.filter(
                         document_name=document_name, date=date).first()
                     if existing_document:
-                        print(f"Document {document_name} already exists in the database. Skipping...")
+                        print(f"Document {
+                              document_name} already exists in the database. Skipping...")
                     else:
                         document = Document(
                             document_name=filename,
@@ -36,14 +38,17 @@ def parse_folder(folder_path):
                             file_path=file_path,
                         )
                         document.save()
-                        print(f"Document {document_name} saved to the database.")
+                        print(f"Document {
+                              document_name} saved to the database.")
         except Exception as e:
             print(f"Error processing {filename}: {e}")
-    documents_to_delete = Document.objects.exclude(document_name__in=existing_filenames)
+    documents_to_delete = Document.objects.exclude(
+        document_name__in=existing_filenames)
     documents_to_delete.delete()
 
+
 def update_data(request):
-    folder_path = r'D:\SCHOOL\dev\imodocubase\IMO_Doba\sample_DB'
+    folder_path = r'C:\Github\imodocubase\IMO_Doba\sample_DB'
     try:
         parse_folder(folder_path)
         print("function call " + folder_path)
