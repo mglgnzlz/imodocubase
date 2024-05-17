@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from .models import Document
@@ -29,34 +30,33 @@ def doc_update(request):
         # Determine the sorting order
         date_order = '-' if sort_date == 'descending' else ''
         supplier_order = '-' if sort_supplier == 'desc' else ''
-        
+
         if not file_type:
             documents = Document.objects.all()
         elif 'MISC' in file_type:
-            documents = Document.objects.exclude(document_type__in=['IAR', 'EPR'])
+            documents = Document.objects.exclude(
+                document_type__in=['IAR', 'EPR'])
         else:
             documents = Document.objects.filter(document_type__in=file_type)
-        
-        
-        documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
-    
+
+        documents = documents.order_by(f'{date_order}date', f'{
+                                       supplier_order}supplier')
+
     # Set Up Pagination
-    num_paginator = Paginator(documents, 10)  # Use the sorted and filtered documents
+    # Use the sorted and filtered documents
+    num_paginator = Paginator(documents, 10)
     page = request.GET.get('page')
-    
+
     documents = num_paginator.get_page(page)
-    
-    
+
     context = {
-        'documents': documents, 
-        'file_type': file_type, 
-        'sort_date': sort_date, 
+        'documents': documents,
+        'file_type': file_type,
+        'sort_date': sort_date,
         'sort_supplier': sort_supplier
     }
-    
+
     return render(request, "dobaMainPage/dbview.html", context)
-
-
 
 
 def home(request):
@@ -73,8 +73,6 @@ def translogs(request):
 
     return render(request, "dobaMainPage/translogs.html", {'documents': documents})
 
-
-from django.db.models import Q
 
 def rep_gen(request):
     error_message = None
@@ -106,7 +104,8 @@ def rep_gen(request):
         supplier_order = '-' if sort_supplier == 'desc' else ''
 
         # Sort the queryset
-        queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
+        queryset = queryset.order_by(f'{date_order}date', f'{
+                                     supplier_order}supplier')
 
         # Paginate the queryset
         paginator = Paginator(queryset, 10)  # Show 10 documents per page
@@ -129,7 +128,6 @@ def rep_gen(request):
 
     return render(request, 'dobaMainPage/repgeny.html', context)
 
- 
 
 def download_document(request, document_id):
     # Retrieve the document object from the database
@@ -155,7 +153,23 @@ def rename_doc(request, document_id):
         if form.is_valid():
             # Save the updated document name
             new_fileName = form.cleaned_data['document_name']
-            print(new_fileName)
+
+            base_filename = new_fileName.rsplit('(', 1)[0].strip()[:-4]
+
+            # Count how many filenames start with the base filename
+            existing_files_count = Document.objects.filter(
+                document_name__startswith=base_filename).count()
+            print(existing_files_count)
+            # If a file with the same name exists, append a number to the file name
+            if existing_files_count > 0:
+                # If a file with the same name exists, keep incrementing the file count until a unique filename is found
+                while True:
+                    new_fileName = f"{
+                        base_filename} ({existing_files_count}).pdf"
+                    print(new_fileName)
+                    if not Document.objects.filter(document_name=new_fileName).exists():
+                        break
+                    existing_files_count += 1
 
             old_filePath = document.file_path
             new_filePath = os.path.join(
@@ -202,7 +216,6 @@ def search_data(request):
 
         results = Document.objects.filter(
             document_name__icontains=query).order_by('id')
-        
 
         page = request.GET.get('page', 1)
         num_paginator = Paginator(results, 5)
