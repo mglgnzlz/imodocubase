@@ -10,8 +10,8 @@ from django.core.paginator import Paginator
 import os
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+
+
 
 
 def doc_update(request):
@@ -59,22 +59,6 @@ def doc_update(request):
 
 
 
-def home(request):
-
-    # Scripts for HOME PAGE to Django Backend
-    documents = Document.objects.all()
-
-    return render(request, "dobaMainPage/home.html", {'documents': documents})
-
-
-def translogs(request):
-
-    # Scripts for TRANSMISSION LOGS to Django Backend
-
-    return render(request, "dobaMainPage/translogs.html", {'documents': documents})
-
-
-from django.db.models import Q
 
 def rep_gen(request):
     error_message = None
