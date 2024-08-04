@@ -48,7 +48,7 @@ def parse_folder(folder_path):
 
 
 def update_data(request):
-    folder_path = r'C:\Github\imodocubase\IMO_Doba\sample_DB'
+    folder_path = r'D:\Documents\Github\imodocubase\IMO_Doba\sample_DB'
     try:
         parse_folder(folder_path)
         print("function call " + folder_path)
