@@ -9,6 +9,11 @@ from .forms import RenameDocumentForm
 from send2trash import send2trash
 from django.core.paginator import Paginator
 import os
+import re
+import csv
+from django.db.models import Count
+from datetime import datetime, timedelta
+from django.utils.dateparse import parse_date
 
 
 def index(request):
@@ -21,37 +26,25 @@ def doc_update(request):
 
     sort_date = request.GET.get('sort-date', None)
     sort_supplier = request.GET.get('sort-supplier', None)
-    file_type = request.GET.getlist('file-type[]')
 
-    # If no sorting or filtering parameters are provided, return all documents
-    if not sort_date and not sort_supplier and not file_type:
-        documents = Document.objects.all()
-    else:
-        # Determine the sorting order
-        date_order = '-' if sort_date == 'descending' else ''
-        supplier_order = '-' if sort_supplier == 'desc' else ''
+    # Fetch all documents
+    documents = Document.objects.all()
 
-        if not file_type:
-            documents = Document.objects.all()
-        elif 'MISC' in file_type:
-            documents = Document.objects.exclude(
-                document_type__in=['IAR', 'EPR'])
-        else:
-            documents = Document.objects.filter(document_type__in=file_type)
+    # Determine the sorting order
+    date_order = '-' if sort_date == 'descending' else ''
+    supplier_order = '-' if sort_supplier == 'desc' else ''
 
-        documents = documents.order_by(f'{date_order}date', f'{
-                                       supplier_order}supplier')
+    # Apply sorting
+    documents = documents.order_by(f'{date_order}date', f'{
+                                   supplier_order}supplier')
 
     # Set Up Pagination
-    # Use the sorted and filtered documents
     num_paginator = Paginator(documents, 10)
     page = request.GET.get('page')
-
     documents = num_paginator.get_page(page)
 
     context = {
         'documents': documents,
-        'file_type': file_type,
         'sort_date': sort_date,
         'sort_supplier': sort_supplier
     }
@@ -82,14 +75,27 @@ def rep_gen(request):
         # Get request parameters
         sort_date = request.GET.get('sort-date', None)
         sort_supplier = request.GET.get('sort-supplier', None)
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
+        start_date_str = request.GET.get('start_date', None)
+        end_date_str = request.GET.get('end_date', None)
+        time_period = request.GET.get('time-period', 'all-files')
+
+        start_date = parse_date(start_date_str) if start_date_str else None
+        end_date = parse_date(end_date_str) if end_date_str else None
 
         # Base queryset
         queryset = Document.objects.all()
 
-        # Apply date range filter
-        if start_date and end_date:
+        # Apply date range filter based on time period
+        if time_period and time_period != 'all-files':
+            end_date = datetime.now().date()
+            if time_period == 'last-month':
+                start_date = end_date - timedelta(days=30)
+            elif time_period == 'last-3-months':
+                start_date = end_date - timedelta(days=90)
+            elif time_period == 'last-6-months':
+                start_date = end_date - timedelta(days=180)
+            queryset = queryset.filter(date__range=[start_date, end_date])
+        elif start_date and end_date:
             queryset = queryset.filter(date__range=[start_date, end_date])
 
         # Determine sorting order
@@ -110,8 +116,9 @@ def rep_gen(request):
             'page_obj': page_obj,
             'sort_date': sort_date,
             'sort_supplier': sort_supplier,
-            'start_date': start_date,
-            'end_date': end_date,
+            'start_date': start_date_str,
+            'end_date': end_date_str,
+            'time_period': time_period,
         }
 
     except Exception as e:
@@ -137,48 +144,128 @@ def download_document(request, document_id):
     raise Http404
 
 
+def export_csv(request):
+    sort_date = request.GET.get('sort-date', None)
+    sort_supplier = request.GET.get('sort-supplier', None)
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    time_period = request.GET.get('time-period')
+
+    # Parse dates
+    start_date = parse_date(start_date_str) if start_date_str else None
+    end_date = parse_date(end_date_str) if end_date_str else None
+
+    # Base queryset
+    queryset = Document.objects.all()
+
+    # Apply date range filter based on time period
+    if time_period and time_period != 'all-files':
+        end_date = datetime.now().date()
+        if time_period == 'last-month':
+            start_date = end_date - timedelta(days=30)
+        elif time_period == 'last-3-months':
+            start_date = end_date - timedelta(days=90)
+        elif time_period == 'last-6-months':
+            start_date = end_date - timedelta(days=180)
+        queryset = queryset.filter(date__range=[start_date, end_date])
+    elif start_date and end_date:
+        queryset = queryset.filter(date__range=[start_date, end_date])
+
+    # Determine sorting order
+    date_order = '-' if sort_date == 'descending' else ''
+    supplier_order = '-' if sort_supplier == 'desc' else ''
+
+    # Sort the queryset
+    queryset = queryset.order_by(f'{date_order}date', f'{
+                                 supplier_order}supplier')
+
+    # Create a dictionary for document type counts
+    document_type_counts = queryset.values('document_name').annotate(
+        document_type=Count('id')
+    ).order_by()
+
+    document_type_count_dict = {}
+    for document in queryset:
+        doc_type = document.extract_document_type()
+        if doc_type not in document_type_count_dict:
+            document_type_count_dict[doc_type] = 0
+        document_type_count_dict[doc_type] += 1
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="documents.csv"'
+
+    writer = csv.writer(response)
+
+    # Create headers
+    headers = ['Document Name', 'Document Type', 'Supplier', 'Date'] + \
+        [f'Count of {doc_type}' for doc_type in document_type_count_dict.keys()]
+    writer.writerow(headers)
+
+    for document in queryset:
+        doc_type = document.extract_document_type()
+        row = [
+            document.document_name,
+            doc_type,
+            document.supplier,
+            document.date
+        ]
+        # Add count columns
+        row += [document_type_count_dict.get(doc_type, 0)
+                for doc_type in document_type_count_dict.keys()]
+        writer.writerow(row)
+
+    return response
+
+
 def rename_doc(request, document_id):
     document = get_object_or_404(Document, id=document_id)
 
     if request.method == 'POST':
         form = RenameDocumentForm(request.POST, instance=document)
         if form.is_valid():
-            # Save the updated document name
             new_fileName = form.cleaned_data['document_name']
 
-            base_filename = new_fileName.rsplit('(', 1)[0].strip()[:-4]
+            # Extract the base filename and the optional count part
+            base_filename_match = re.match(
+                r'^(.*?)( \(\d+\))?\.pdf$', new_fileName)
+            if not base_filename_match:
+                # If the filename does not match the expected pattern
+                form.add_error(None, "Invalid filename format")
+                return render(request, 'dobaMainPage/rename_doc.html', {'document': document, 'form': form})
+
+            base_filename = base_filename_match.group(1).strip()
+            optional_part = base_filename_match.group(2) or ""
 
             # Count how many filenames start with the base filename
             existing_files_count = Document.objects.filter(
                 document_name__startswith=base_filename).count()
-            print(existing_files_count)
-            # If a file with the same name exists, append a number to the file name
+
+            # If a file with the same name exists, keep incrementing the file count until a unique filename is found
             if existing_files_count > 0:
-                # If a file with the same name exists, keep incrementing the file count until a unique filename is found
+                count = 1
                 while True:
-                    new_fileName = f"{
-                        base_filename} ({existing_files_count}).pdf"
-                    print(new_fileName)
+                    new_fileName = f"{base_filename} ({count}).pdf"
                     if not Document.objects.filter(document_name=new_fileName).exists():
                         break
-                    existing_files_count += 1
+                    count += 1
+            else:
+                new_fileName = f"{base_filename}.pdf"
 
+            # Rename the file on the filesystem
             old_filePath = document.file_path
             new_filePath = os.path.join(
                 os.path.dirname(old_filePath), new_fileName)
             os.rename(old_filePath, new_filePath)
-            document.file_path = new_filePath
 
+            # Update the document record
+            document.file_path = new_filePath
             document.document_name = new_fileName
             document.save()
 
-            original_document_id = document_id
-            document.delete()
-
-            update_data(request)
+            # Redirect after renaming
             return redirect('/dbview')  # Redirect to document detail page
     else:
-        # Initialize the form with the document instance
         form = RenameDocumentForm(instance=document)
 
     return render(request, 'dobaMainPage/rename_doc.html', {'document': document, 'form': form})

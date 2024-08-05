@@ -1,44 +1,49 @@
-{% extends 'dobaMainPage/base.html' %} {% block content %}
-{%load static%}
+{% extends 'dobaMainPage/base.html' %} {% block content %} {%load static%}
 
 <script src="{% static 'js/urlStore.js' %}"></script>
-
-
 
 <div class="table_section">
   <h1>Report Generations</h1>
 
   <div class="filter_section">
-    <form action="{% url 'rep_gen' %}" method="GET">
+    <form
+      action="{% url 'rep_gen' %}"
+      method="GET">
       <!-- Date inputs... -->
       <label for="start_date">Start Date:</label>
-      <input type="date" id="start_date" name="start_date" />
+      <input
+        type="date"
+        id="start_date"
+        name="start_date" />
       <label for="end_date">End Date:</label>
-      <input type="date" id="end_date" name="end_date" />
+      <input
+        type="date"
+        id="end_date"
+        name="end_date" />
 
       <!-- Sorting and filtering inputs... -->
       <select name="sort-date">
-        <option value="ascending">Date (Ascending)</option>
-        <option value="descending">Date (Descending)</option>
+        <option value="ascending" {% if sort_date == "ascending" %}selected{% endif %}>Date (Ascending)</option>
+        <option value="descending" {% if sort_date == "descending" %}selected{% endif %}>Date (Descending)</option>
       </select>
       <select name="sort-supplier">
-        <option value="asc">Supplier (A-Z)</option>
-        <option value="desc">Supplier (Z-A)</option>
+        <option value="asc" {% if sort_supplier == "asc" %}selected{% endif %}>Supplier (A-Z)</option>
+        <option value="desc" {% if sort_supplier == "desc" %}selected{% endif %}>Supplier (Z-A)</option>
       </select>
-      <label for="file-type">File Type:</label>
-      <input type="checkbox" id="iar" name="file-type" value="IAR">
-      <label for="iar">IAR</label>
-      <input type="checkbox" id="epr" name="file-type" value="EPR">
-      <label for="epr">EPR</label>
-      <input type="checkbox" id="misc" name="file-type" value="MISC">
-      <label for="misc">MISC</label>
+      <label for="time-period">Time Period:</label>
+      <select name="time-period">
+        <option value="all-files" {% if time_period == "all-files" %}selected{% endif %}>All Files</option>
+        <option value="last-month" {% if time_period == "last-month" %}selected{% endif %}>Last Month</option>
+        <option value="last-3-months" {% if time_period == "last-3-months" %}selected{% endif %}>Last 3 Months</option>
+        <option value="last-6-months" {% if time_period == "last-6-months" %}selected{% endif %}>Last 6 Months</option>
+      </select>
+      </select>
 
       <!-- Submit button -->
       <button type="submit">Submit</button>
+      <button type="submit" formaction="{% url 'export_csv' %}">Export CSV</button>
     </form>
   </div>
-
-
 
   <table>
     <thead>
@@ -62,30 +67,21 @@
   </table>
 </div>
 
-
 <div class="pagination">
   <ul class="page">
-    {% if page_obj.has_previous %}
-    <a href="?page=1&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
-      <li>FIRST</li>
+    
+    {% for i in page_obj.paginator.page_range %} {% if page_obj.number == i %}
+    <a
+      href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}&time-period={{ time_period }}"
+      class="active">
+      <li>{{ i }}</li>
     </a>
-    {% endif %}
-    {% for i in page_obj.paginator.page_range %}
-      {% if page_obj.number == i %}
-        <a href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}" class="active">
-          <li>{{ i }}</li>
-        </a>
-      {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
-        <a href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
-          <li>{{ i }}</li>
-        </a>
-      {% endif %}
-    {% endfor %}
-    {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.paginator.num_pages }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type={{ type }}{% endfor %}">
-      <li>LAST</li>
+    {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
+    <a
+      href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}&time-period={{ time_period }}">
+      <li>{{ i }}</li>
     </a>
-    {% endif %}
+    {% endif %} {% endfor %}
   </ul>
 </div>
 
@@ -94,5 +90,4 @@
   var errorMessage = "{{ error_message|escapejs }}";
   alert(errorMessage);
 </script>
-{% endif %}
-{% endblock %}
+{% endif %} {% endblock %}
