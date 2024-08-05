@@ -82,7 +82,6 @@ def rep_gen(request):
         # Get request parameters
         sort_date = request.GET.get('sort-date', None)
         sort_supplier = request.GET.get('sort-supplier', None)
-        file_type = request.GET.getlist('file-type')
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
 
@@ -92,12 +91,6 @@ def rep_gen(request):
         # Apply date range filter
         if start_date and end_date:
             queryset = queryset.filter(date__range=[start_date, end_date])
-
-        # Apply file type filter
-        if 'MISC' in file_type:
-            queryset = queryset.exclude(document_type__in=['IAR', 'EPR'])
-        else:
-            queryset = queryset.filter(document_type__in=file_type)
 
         # Determine sorting order
         date_order = '-' if sort_date == 'descending' else ''
@@ -117,7 +110,6 @@ def rep_gen(request):
             'page_obj': page_obj,
             'sort_date': sort_date,
             'sort_supplier': sort_supplier,
-            'file_type': file_type,
             'start_date': start_date,
             'end_date': end_date,
         }
