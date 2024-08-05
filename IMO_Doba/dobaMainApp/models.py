@@ -12,11 +12,12 @@ class Document(models.Model):
     orig_docName = models.CharField(max_length=255, blank=True)
 
     def extract_document_type(self):
-        """Extracts document type from the filename."""
+        """Extracts document type from the filename and converts it to uppercase."""
         parts = self.document_name.split('_')
         if len(parts) > 1:
-            return parts[0]  # Return the part before the first underscore
-        return 'Unknown'
+            # Return the part before the first underscore in uppercase
+            return parts[0].upper()
+        return 'UNKNOWN'
 
     @property
     def document_type(self):
