@@ -180,10 +180,6 @@ def export_csv(request):
                                  supplier_order}supplier')
 
     # Create a dictionary for document type counts
-    document_type_counts = queryset.values('document_name').annotate(
-        document_type=Count('id')
-    ).order_by()
-
     document_type_count_dict = {}
     for document in queryset:
         doc_type = document.extract_document_type()
@@ -193,27 +189,27 @@ def export_csv(request):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="documents.csv"'
+
+    # Determine the file name based on the date range
+    if start_date and end_date:
+        file_name = f'REPORT_GENERATION_{start_date.strftime("%B_%d_%Y")}_to_{
+            end_date.strftime("%B_%d_%Y")}.csv'
+    else:
+        file_name = 'REPORT_GENERATION_ALL_FILES.csv'
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
     writer = csv.writer(response)
 
     # Create headers
-    headers = ['Document Name', 'Document Type', 'Supplier', 'Date'] + \
+    headers = ['Document Type'] + \
         [f'Count of {doc_type}' for doc_type in document_type_count_dict.keys()]
     writer.writerow(headers)
 
-    for document in queryset:
-        doc_type = document.extract_document_type()
-        row = [
-            document.document_name,
-            doc_type,
-            document.supplier,
-            document.date
-        ]
-        # Add count columns
-        row += [document_type_count_dict.get(doc_type, 0)
-                for doc_type in document_type_count_dict.keys()]
-        writer.writerow(row)
+    # Create a single row with the counts of each document type
+    row = ['']  # Empty cell for 'Document Type'
+    row += [count for count in document_type_count_dict.values()]
+    writer.writerow(row)
 
     return response
 
