@@ -92,12 +92,7 @@ def rep_gen(request):
         # Apply date range filter
         if start_date and end_date:
             queryset = queryset.filter(date__range=[start_date, end_date])
-
-        # Apply file type filter
-        if 'MISC' in file_type:
-            queryset = queryset.exclude(document_type__in=['IAR', 'EPR'])
-        else:
-            queryset = queryset.filter(document_type__in=file_type)
+            
 
         # Determine sorting order
         date_order = '-' if sort_date == 'descending' else ''
