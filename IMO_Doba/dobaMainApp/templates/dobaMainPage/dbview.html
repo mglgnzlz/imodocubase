@@ -1,7 +1,4 @@
-
-{% extends 'dobaMainPage/base.html' %} {% block content %}
-{%load static%}
-
+{% extends 'dobaMainPage/base.html' %} {% block content %} {%load static%}
 
 <script src="{% static 'js/contextMenu.js' %}"></script>
 
@@ -20,7 +17,7 @@
         type="submit">
         SEARCH
       </button>
-      </form>
+    </form>
   </div>
 
   <div class="update_sec">
@@ -33,7 +30,9 @@
 </div>
 
 <div class="filter_section">
-  <form action="{% url 'doc_update' %}" method="GET">
+  <form
+    action="{% url 'doc_update' %}"
+    method="GET">
     <!-- Your existing inputs... -->
     <select name="sort-date">
       <option value="ascending">Date (Ascending)</option>
@@ -43,22 +42,8 @@
       <option value="asc">Supplier (A-Z)</option>
       <option value="desc">Supplier (Z-A)</option>
     </select>
-    <label for="file-type">File Type:</label>
-    <input type="checkbox" id="iar" name="file-type[]" value="IAR">
-    <label for="iar">IAR</label>
-    <input type="checkbox" id="epr" name="file-type[]" value="EPR">
-    <label for="epr">EPR</label>
-    <input type="checkbox" id="misc" name="file-type[]" value="MISC">
-    <label for="misc">MISC</label>
-
-    <!-- Your existing inputs... -->
-    <button type="submit">Submit</button>
   </form>
-  
 </div>
-
-
-
 
 <div class="table_section">
   <h1>Document List</h1>
@@ -102,31 +87,20 @@
 
 <div class="pagination">
   <ul class="page">
-    {% if documents.has_previous %}
-      <a href="?page=1&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
-        <li>FIRST</li>
-      </a>
-    {% endif %}
-    {% for i in documents.paginator.page_range %}
-      {% if documents.number == i %}
-      <a href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}" class="active">
-        <li>{{ i }}</li>
-      </a>
-      {% elif i > documents.number|add:"-3" and i < documents.number|add:"3" %}
-      <a href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
-        <li>{{ i }}</li>
-      </a>
-      {% endif %}
-    {% endfor %}
-    {% if documents.has_next %}
-    <a href="?page={{ documents.paginator.num_pages }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
-      <li>LAST</li>
+    {% for i in documents.paginator.page_range %} {% if documents.number == i %}
+    <a
+      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}"
+      class="active">
+      <li>{{ i }}</li>
     </a>
-    {% endif %}
+    {% elif i > documents.number|add:"-3" and i < documents.number|add:"3" %}
+    <a
+      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
+      <li>{{ i }}</li>
+    </a>
+    {% endif %} {% endfor %}
   </ul>
 </div>
-
-
 
 <div id="contextMenu">
   <ul>
@@ -148,7 +122,7 @@
 </div>
 
 <script>
-    document.getElementById("update-btn").addEventListener("click", function () {
+  document.getElementById("update-btn").addEventListener("click", function () {
     // Send an AJAX request to the Django view
     var xhr = new XMLHttpRequest();
     xhr.open("GET", '{% url "doc_update" %}', true);
