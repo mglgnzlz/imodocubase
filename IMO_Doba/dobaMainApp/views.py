@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from .models import Document
@@ -10,8 +11,8 @@ from django.core.paginator import Paginator
 import os
 
 
-
-
+def index(request):
+    return HttpResponse("Hello, world. You're at the polls index.")
 
 
 def doc_update(request):
@@ -57,6 +58,19 @@ def doc_update(request):
     return render(request, "dobaMainPage/dbview.html", context)
 
 
+def home(request):
+
+    # Scripts for HOME PAGE to Django Backend
+    documents = Document.objects.all()
+
+    return render(request, "dobaMainPage/home.html", {'documents': documents})
+
+
+def translogs(request):
+
+    # Scripts for TRANSMISSION LOGS to Django Backend
+
+    return render(request, "dobaMainPage/translogs.html", {'documents': documents})
 
 
 
@@ -139,7 +153,23 @@ def rename_doc(request, document_id):
         if form.is_valid():
             # Save the updated document name
             new_fileName = form.cleaned_data['document_name']
-            print(new_fileName)
+
+            base_filename = new_fileName.rsplit('(', 1)[0].strip()[:-4]
+
+            # Count how many filenames start with the base filename
+            existing_files_count = Document.objects.filter(
+                document_name__startswith=base_filename).count()
+            print(existing_files_count)
+            # If a file with the same name exists, append a number to the file name
+            if existing_files_count > 0:
+                # If a file with the same name exists, keep incrementing the file count until a unique filename is found
+                while True:
+                    new_fileName = f"{
+                        base_filename} ({existing_files_count}).pdf"
+                    print(new_fileName)
+                    if not Document.objects.filter(document_name=new_fileName).exists():
+                        break
+                    existing_files_count += 1
 
             old_filePath = document.file_path
             new_filePath = os.path.join(
@@ -187,7 +217,6 @@ def search_data(request):
         results = Document.objects.filter(
             document_name__icontains=query).order_by('id')
         
-
         page = request.GET.get('page', 1)
         num_paginator = Paginator(results, 5)
         results = num_paginator.page(page)
