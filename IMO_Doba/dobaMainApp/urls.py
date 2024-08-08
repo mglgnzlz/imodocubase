@@ -10,6 +10,7 @@ urlpatterns = [
     path('delete/<int:document_id>/', views.delete_doc, name='delete_doc'),
     path('search/', views.search_data, name='search_data'),
     path("repgen/", views.rep_gen, name = 'rep_gen'),
+    path('export_csv/', views.export_csv, name='export_csv'),
 ]
 
 
