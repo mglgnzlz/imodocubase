@@ -12,9 +12,9 @@
     <form action="{% url 'rep_gen' %}" method="GET">
       <!-- Date inputs... -->
       <label for="start_date">Start Date:</label>
-      <input type="date" id="start_date" name="start_date" />
+      <input type="date" id="start_date" name="start_date" value="{{start_date}}"/>
       <label for="end_date">End Date:</label>
-      <input type="date" id="end_date" name="end_date" />
+      <input type="date" id="end_date" name="end_date" value="{{end_date}}"/>
 
       <!-- Sorting and filtering inputs... -->
       <select name="sort-date">
