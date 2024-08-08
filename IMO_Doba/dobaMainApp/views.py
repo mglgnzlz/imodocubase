@@ -11,6 +11,8 @@ from django.core.paginator import Paginator
 import os
 import re
 import csv
+import mimetypes
+from django.conf import settings
 from django.db.models import Count
 from datetime import datetime, timedelta
 from django.utils.dateparse import parse_date
@@ -311,3 +313,23 @@ def search_data(request):
 
     else:
         return render(request, "dobaMainPage/searchPage.html")
+
+
+def view_document(request, document_id):
+    document = get_object_or_404(Document, id=document_id)
+
+    file_path = os.path.join(settings.MEDIA_ROOT, document.file_path)
+    if not os.path.exists(file_path):
+        raise Http404("File not found")
+
+    with open(file_path, 'rb') as f:
+        file_content = f.read()
+
+    mime_type, _ = mimetypes.guess_type(document.document_name)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'
+
+    response = HttpResponse(file_content, content_type=mime_type)
+    response['Content-Disposition'] = f'inline; filename="{
+        document.document_name}"'
+    return response

@@ -57,6 +57,7 @@
         <th>Supplier</th>
         <th>Date</th>
         <th>Download</th>
+        <th>View</th>
       </tr>
     </thead>
     <tbody>
@@ -76,6 +77,14 @@
             class="btn btn-primary"
             >Download</a
           >
+        </td>
+        <td>
+          <a
+            href="{% url 'view_document' document.id %}"
+            class="btn btn-secondary"
+            target="_blank"
+            >View
+          </a>
         </td>
       </tr>
     </tbody>

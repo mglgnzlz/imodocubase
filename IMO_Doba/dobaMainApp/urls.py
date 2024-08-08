@@ -11,6 +11,8 @@ urlpatterns = [
     path('search/', views.search_data, name='search_data'),
     path("repgen/", views.rep_gen, name = 'rep_gen'),
     path('export_csv/', views.export_csv, name='export_csv'),
+    path('view_document/<int:document_id>/',
+         views.view_document, name='view_document')
 ]
 
 
