@@ -1,26 +1,45 @@
 {% extends 'dobaMainPage/base.html' %} {% block content %}
+{%load static%}
+
+<script src="{% static 'js/urlStore.js' %}"></script>
+
+
 
 <div class="table_section">
   <h1>Report Generations</h1>
-  <form
-    method="post"
-    action="{% url 'rep_gen' %}">
-    {% csrf_token %}
-    <div>
-      <label for="start_date">Start Date:</label>
-      <input
-        type="date"
-        id="start_date"
-        name="start_date" />
-      <label for="end_date">End Date:</label>
-      <input
-        type="date"
-        id="end_date"
-        name="end_date" />
-    </div>
 
-    <button type="submit">Generate Report</button>
-  </form>
+  <div class="filter_section">
+    <form action="{% url 'rep_gen' %}" method="GET">
+      <!-- Date inputs... -->
+      <label for="start_date">Start Date:</label>
+      <input type="date" id="start_date" name="start_date" value="{{start_date}}"/>
+      <label for="end_date">End Date:</label>
+      <input type="date" id="end_date" name="end_date" value="{{end_date}}"/>
+
+      <!-- Sorting and filtering inputs... -->
+      <select name="sort-date">
+        <option value="ascending" {% if sort_date == "ascending" %}selected{% endif %}>Date (Ascending)</option>
+        <option value="descending" {% if sort_date == "descending" %}selected{% endif %}>Date (Descending)</option>
+      </select>
+      <select name="sort-supplier">
+        <option value="asc" {% if sort_supplier == "asc" %}selected{% endif %}>Supplier (A-Z)</option>
+        <option value="desc" {% if sort_supplier == "desc" %}selected{% endif %}>Supplier (Z-A)</option>
+      </select>
+      <label for="time-period">Time Period:</label>
+      <select name="time-period">
+        <option value="all-files" {% if time_period == "all-files" %}selected{% endif %}>All Files</option>
+        <option value="last-month" {% if time_period == "last-month" %}selected{% endif %}>Last Month</option>
+        <option value="last-3-months" {% if time_period == "last-3-months" %}selected{% endif %}>Last 3 Months</option>
+        <option value="last-6-months" {% if time_period == "last-6-months" %}selected{% endif %}>Last 6 Months</option>
+      </select>
+
+      <!-- Submit button -->
+      <button type="submit">Submit</button>
+      <button type="submit" formaction="{% url 'export_csv' %}">Export CSV</button>
+    </form>
+  </div>
+
+
 
   <table>
     <thead>
@@ -32,7 +51,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for document in queryset %}
+      {% for document in page_obj %}
       <tr>
         <td>{{ document.document_name }}</td>
         <td>{{ document.document_type }}</td>
@@ -44,9 +63,30 @@
   </table>
 </div>
 
+
+<div class="pagination">
+  <ul class="page">
+
+    {% for i in page_obj.paginator.page_range %}
+      {% if page_obj.number == i %}
+      <a
+      href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}&time-period={{ time_period }}"class="active">
+          <li>{{ i }}</li>
+        </a>
+      {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
+        <a href="?page={{ i }}&start_date={{ start_date }}&end_date={{ end_date }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}&time-period={{ time_period }}">
+          <li>{{ i }}</li>
+        </a>
+      {% endif %}
+    {% endfor %}
+ 
+  </ul>
+</div>
+
 {% if error_message %}
 <script>
   var errorMessage = "{{ error_message|escapejs }}";
   alert(errorMessage);
 </script>
-{% endif %} {% endblock %}
+{% endif %}
+{% endblock %}

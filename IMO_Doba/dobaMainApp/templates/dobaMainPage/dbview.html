@@ -1,4 +1,6 @@
-{% extends 'dobaMainPage/base.html' %} {% block content %}
+{% extends 'dobaMainPage/base.html' %} {% block content %} {%load static%}
+
+<script src="{% static 'js/contextMenu.js' %}"></script>
 
 <div class="dbview_header">
   <div class="search_sec">
@@ -9,13 +11,13 @@
       <input
         type="text"
         name="query"
-        placeholder="IAR/EPR_SUPPLIER_DATE" />
+        placeholder="Transaction_Type_Company_Date" />
       <button
         id="search_btn"
         type="submit">
         SEARCH
       </button>
-      </form>
+    </form>
   </div>
 
   <div class="update_sec">
@@ -25,6 +27,22 @@
       UPDATE DATA
     </button>
   </div>
+</div>
+
+<div class="filter_section">
+  <form
+    action="{% url 'doc_update' %}"
+    method="GET">
+    <!-- Your existing inputs... -->
+    <select name="sort-date">
+      <option value="ascending">Date (Ascending)</option>
+      <option value="descending">Date (Descending)</option>
+    </select>
+    <select name="sort-supplier">
+      <option value="asc">Supplier (A-Z)</option>
+      <option value="desc">Supplier (Z-A)</option>
+    </select>
+  </form>
 </div>
 
 <div class="table_section">
@@ -39,6 +57,7 @@
         <th>Supplier</th>
         <th>Date</th>
         <th>Download</th>
+        <th>View</th>
       </tr>
     </thead>
     <tbody>
@@ -59,55 +78,39 @@
             >Download</a
           >
         </td>
+        <td>
+          <a
+            href="{% url 'view_document' document.id %}"
+            class="btn btn-secondary"
+            target="_blank"
+            >View
+          </a>
+        </td>
       </tr>
     </tbody>
     {% endfor %}
   </table>
 </div>
 
+<!---sort_date, sort_supplier, file_type--->
+
 <div class="pagination">
-
   <ul class="page">
-    {% if documents.has_previous %}
-      <a href="?page=1">
-        <li>FIRST</li>
-      </a>
-      {% if documents.number|add:"-1" > 1 %}
-      <a href="?page={{documents.number|add:'-2'}}">
-        <li>{{documents.number|add:"-2"}}</li>
-      </a>
-      {% endif %}
-
-      {% if documents.number > 1 %}
-      <a href="?page={{documents.number|add:'-1'}}">
-        <li>{{documents.number|add:"-1"}}</li>
-      </a>
-      {% endif %}
-    {% endif %}
-
-    <a href="?page={{documents.number}}" class="active">
-      <li>{{documents.number}}</li>
+    {% for i in documents.paginator.page_range %} {% if documents.number == i %}
+    <a
+      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}"
+      class="active">
+      <li>{{ i }}</li>
     </a>
-
-    {% if documents.has_next %}
-      {% if documents.paginator.num_pages > documents.number %}
-      <a href="?page={{documents.number|add:'+1'}}">
-        <li>{{documents.number|add:"+1"}}</li>
-      </a>
-      {% endif %}
-
-      {% if documents.paginator.num_pages > documents.number|add:"+1" %}
-      <a href="?page={{documents.number|add:'+2'}}">
-        <li>{{documents.number|add:"+2"}}</li>
-      </a>
-      {% endif %}
-
-    <a href="?page={{documents.paginator.num_pages}}">
-      <li>LAST</li>
+    {% elif i > documents.number|add:"-3" and i < documents.number|add:"3" %}
+    <a
+      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
+      <li>{{ i }}</li>
     </a>
-    {% endif %}
+    {% endif %} {% endfor %}
   </ul>
 </div>
+
 <div id="contextMenu">
   <ul>
     <li>
@@ -128,7 +131,6 @@
 </div>
 
 <script>
-  //UPDATE DOCUMENT CALLS
   document.getElementById("update-btn").addEventListener("click", function () {
     // Send an AJAX request to the Django view
     var xhr = new XMLHttpRequest();
@@ -142,65 +144,6 @@
     };
     xhr.send();
   });
-  //CONTEXT MENU LOADING AND DOCUMENT SELECTION LOGIC
-  document.addEventListener("DOMContentLoaded", function () {
-    const documents = document.querySelectorAll(".document");
-    const contextMenu = document.getElementById("contextMenu");
-    const renameAction = document.getElementById("renameAction");
-    const deleteAction = document.getElementById("deleteAction");
-
-    function actionURLS(documentId) {
-      if (renameAction && deleteAction) {
-        renameAction.href = "/rename/" + documentId;
-        deleteAction.href = "/delete/" + documentId;
-        console.log(documentId);
-      } else {
-        console.log("Null DocID");
-      }
-    }
-
-    function displayContextMenu(event, documentId) {
-      event.preventDefault();
-
-      var contextMenu = document.getElementById("contextMenu");
-
-      actionURLS(documentId);
-      console.log("Selected Document ID:", documentId);
-      contextMenu.style.display = "block";
-      contextMenu.style.left = event.pageX + "px";
-      contextMenu.style.top = event.pageY + "px";
-
-      document.addEventListener("click", function () {
-        contextMenu.style.display = "none";
-      });
-    }
-    documents.forEach(function (document) {
-      document.addEventListener("contextmenu", function (event) {
-        const documentId = document.dataset.documentId;
-        displayContextMenu(event, documentId);
-      });
-
-      document.addEventListener("click", function (event) {
-        // Retrieve document_id from data attribute
-        const documentId = document.dataset.documentId;
-
-        // Output document_id to console
-        console.log("Selected Document ID:", documentId);
-
-        if (document.classList.contains("selected")) {
-          document.classList.remove("selected");
-        } else {
-          documents.forEach(function (doc) {
-            doc.classList.remove("selected");
-          });
-          document.classList.add("selected");
-        }
-      });
-    });
-  });
-
 </script>
-
-<br></br>
 
 {% endblock %}
