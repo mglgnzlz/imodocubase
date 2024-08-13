@@ -11,6 +11,16 @@ class Document(models.Model):
     file_path = models.CharField(max_length=512, default='')
     orig_docName = models.CharField(max_length=255, blank=True)
     
+    def extract_file_type(self):
+        """Extracts document type from the filename and converts it to uppercase."""
+        parts = self.document_name.split('_')
+        if len(parts) > 1:
+            return parts[0].upper()
+        return 'UNKNOWN'
+
+    @property
+    def file_type(self):
+        return self.extract_file_type()
     
     def save(self, *args, **kwargs):
         
