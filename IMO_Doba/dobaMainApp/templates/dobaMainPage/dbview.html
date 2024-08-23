@@ -56,8 +56,13 @@
         <th>Document Type</th>
         <th>Supplier</th>
         <th>Date</th>
+        <th>P.O. Number</th>
+        <th>Status</th>
+        <th>Remarks</th>
+        <th>Update Document</th>
         <th>Download</th>
         <th>View</th>
+
       </tr>
     </thead>
     <tbody>
@@ -71,12 +76,31 @@
         <td>{{ document.document_type }}</td>
         <td>{{ document.supplier }}</td>
         <td>{{ document.date }}</td>
+        <form method = "post" action = "{% url 'doc_update' document_id %}">
+          {%csrf_token%}
+          <input type="hidden" name="document_id" value = "{{ document_id }}">
+          <td>
+            <input type="text" name="po_number" value = "{{document.po_number}}">
+          </td>
+          
+          <td>
+            <input type="text" name="remarks" value = "{{document.remarks}}">
+          </td>
+
+          <td>
+            <input type="text" name="status" value = "{{document.status}}">
+          </td>
+
+          <td>
+            <button type = "submit"> Update </button>
+          </td>
+
+        </form>
         <td>
           <a
             href="{% url 'download_document' document.id %}"
             class="btn btn-primary"
-            >Download</a
-          >
+            >Download</a>
         </td>
         <td>
           <a

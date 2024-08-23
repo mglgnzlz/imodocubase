@@ -25,6 +25,28 @@ def index(request):
 def doc_update(request):
     # Fetch data from the database or perform any other operations
     update_data(request)
+    
+    print("Request GET data:", request.GET)
+    print("Request POST data:", request.POST)
+    
+    if request.method == 'POST':
+        document_id = request.POST.get('document_id')
+        po_number = request.POST.get('po_number')
+        remarks = request.POST.get('remarks')
+        status = request.POST.get('status')
+        
+        document = Document.objects.get(id=document_id)
+        if po_number:
+            document.po_number = po_number
+        if remarks:
+            document.remarks = remarks
+        if status:
+            document.status = status 
+        
+        document.save()
+
+        return redirect('doc_update')
+    
 
     sort_date = request.GET.get('sort-date', None)
     sort_supplier = request.GET.get('sort-supplier', None)
@@ -34,8 +56,7 @@ def doc_update(request):
     date_order = '-' if sort_date == 'descending' else ''
     supplier_order = '-' if sort_supplier == 'desc' else ''
 
-    documents = documents.order_by(f'{date_order}date', f'{
-                                   supplier_order}supplier')
+    documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
 
     # Set Up Pagination
     # Use the sorted and filtered documents
@@ -106,8 +127,7 @@ def rep_gen(request):
         supplier_order = '-' if sort_supplier == 'desc' else ''
 
         # Sort the queryset
-        queryset = queryset.order_by(f'{date_order}date', f'{
-                                     supplier_order}supplier')
+        queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
 
         # Paginate the queryset
         paginator = Paginator(queryset, 10)  # Show 10 documents per page
@@ -345,6 +365,5 @@ def view_document(request, document_id):
         mime_type = 'application/octet-stream'
 
     response = HttpResponse(file_content, content_type=mime_type)
-    response['Content-Disposition'] = f'inline; filename="{
-        document.document_name}"'
+    response['Content-Disposition'] = f'inline; filename="{document.document_name}"'
     return response
