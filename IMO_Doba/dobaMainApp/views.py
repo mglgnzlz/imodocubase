@@ -36,21 +36,21 @@ def doc_update(request):
 
     documents = documents.order_by(f'{date_order}date', f'{
                                    supplier_order}supplier')
-    
+
     # Set Up Pagination
-    num_paginator = Paginator(documents, 10)  # Use the sorted and filtered documents
+    # Use the sorted and filtered documents
+    num_paginator = Paginator(documents, 10)
     page = request.GET.get('page')
-    
+
     documents = num_paginator.get_page(page)
-    
-    
+
     context = {
-        'documents': documents, 
-        'file_type': file_type, 
-        'sort_date': sort_date, 
+        'documents': documents,
+        'file_type': file_type,
+        'sort_date': sort_date,
         'sort_supplier': sort_supplier
     }
-    
+
     return render(request, "dobaMainPage/dbview.html", context)
 
 
@@ -67,7 +67,6 @@ def translogs(request):
     # Scripts for TRANSMISSION LOGS to Django Backend
 
     return render(request, "dobaMainPage/translogs.html", {'documents': documents})
-
 
 
 def rep_gen(request):
@@ -102,13 +101,13 @@ def rep_gen(request):
         elif start_date and end_date:
             queryset = queryset.filter(date__range=[start_date, end_date])
 
-
         # Determine sorting order
         date_order = '-' if sort_date == 'descending' else ''
         supplier_order = '-' if sort_supplier == 'desc' else ''
 
         # Sort the queryset
-        queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
+        queryset = queryset.order_by(f'{date_order}date', f'{
+                                     supplier_order}supplier')
 
         # Paginate the queryset
         paginator = Paginator(queryset, 10)  # Show 10 documents per page
@@ -123,14 +122,13 @@ def rep_gen(request):
             'file_type': file_type,
             'start_date': start_date_str,
             'end_date': end_date_str,
-            'time_period': time_period,}
+            'time_period': time_period, }
 
     except Exception as e:
         error_message = "An error occurred: " + str(e)
         context['error_message'] = error_message
 
     return render(request, 'dobaMainPage/repgeny.html', context)
-
 
 
 def export_csv(request):
@@ -165,28 +163,24 @@ def export_csv(request):
     supplier_order = '-' if sort_supplier == 'desc' else ''
 
     # Sort the queryset
-    queryset = queryset.order_by(f'{date_order}date', f'{
-                                 supplier_order}supplier')
+    queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
 
-    # Create a dictionary for document type counts
-    # document_type_counts = queryset.values('document_name').annotate(
-    #     document_type=Count('id')
-    # ).order_by()
-
-    document_type_count_dict = {}
+    # Group by company and document type
+    company_dict = {}
     for document in queryset:
-        doc_type = document.extract_file_type()
-        if doc_type not in document_type_count_dict:
-            document_type_count_dict[doc_type] = 0
-        document_type_count_dict[doc_type] += 1
+        company = document.supplier
+        file_name = f'TRANSACTION_{company}_{document.date.strftime("%Y%m%d")}'
+        if company not in company_dict:
+            company_dict[company] = {'count': 0, 'files': []}
+        company_dict[company]['count'] += 1
+        company_dict[company]['files'].append(file_name)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
 
     # Determine the file name based on the date range
     if start_date and end_date:
-        file_name = f'REPORT_GENERATION_{start_date.strftime("%B_%d_%Y")}_to_{
-            end_date.strftime("%B_%d_%Y")}.csv'
+        file_name = f'REPORT_GENERATION_{start_date.strftime("%B_%d_%Y")}_to_{end_date.strftime("%B_%d_%Y")}.csv'
     else:
         file_name = 'REPORT_GENERATION_ALL_FILES.csv'
 
@@ -194,18 +188,39 @@ def export_csv(request):
 
     writer = csv.writer(response)
 
-    # Create headers
-    headers = ['Document Type'] + \
-        [f'Count of {doc_type}' for doc_type in document_type_count_dict.keys()]
+    # Write headers
+    headers = ['COMPANY NAME', 'FILE NAMES', '# OF TRANSACTIONS']
     writer.writerow(headers)
 
-    # Create a single row with the counts of each document type
-    row = ['']  # Empty cell for 'Document Type'
-    row += [count for count in document_type_count_dict.values()]
-    writer.writerow(row)
+    # Write company data
+    for company, data in company_dict.items():
+        filenames = '\n'.join(data['files'])  # Join filenames with line breaks
+        row = [company, filenames, data['count']]
+        writer.writerow(row)
+        writer.writerow([''])  # Add a blank row for spacing
+
+    # Add extra blank row for spacing between company data and summary
+    writer.writerow([''])
+    writer.writerow([''])
+
+    # Write summary
+    if start_date and end_date:
+        date_range = f'DATE RANGE: {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}'
+    else:
+        date_range = 'DATE RANGE: ALL FILES'
+
+    summary_row = [date_range]
+    for company, data in company_dict.items():
+        summary_row.append(f'# OF TRANSACTIONS OF {company}')
+    writer.writerow(summary_row)
+
+    count_row = ['']
+    for company, data in company_dict.items():
+        count_row.append(data['count'])
+    writer.writerow(count_row)
 
     return response
- 
+
 
 def download_document(request, document_id):
     # Retrieve the document object from the database
@@ -304,7 +319,7 @@ def search_data(request):
 
         results = Document.objects.filter(
             document_name__icontains=query).order_by('id')
-        
+
         page = request.GET.get('page', 1)
         num_paginator = Paginator(results, 5)
         results = num_paginator.page(page)
