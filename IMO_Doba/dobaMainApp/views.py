@@ -163,13 +163,15 @@ def export_csv(request):
     supplier_order = '-' if sort_supplier == 'desc' else ''
 
     # Sort the queryset
-    queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
+    queryset = queryset.order_by(f'{date_order}date', f'{
+                                 supplier_order}supplier')
 
     # Group by company and document type
     company_dict = {}
     for document in queryset:
         company = document.supplier
-        file_name = f'TRANSACTION_{company}_{document.date.strftime("%Y%m%d")}'
+        file_name = f'{document.extract_file_type()}_{company}_{
+            document.date.strftime("%Y%m%d")}'
         if company not in company_dict:
             company_dict[company] = {'count': 0, 'files': []}
         company_dict[company]['count'] += 1
@@ -177,10 +179,9 @@ def export_csv(request):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-
-    # Determine the file name based on the date range
     if start_date and end_date:
-        file_name = f'REPORT_GENERATION_{start_date.strftime("%B_%d_%Y")}_to_{end_date.strftime("%B_%d_%Y")}.csv'
+        file_name = f'REPORT_GENERATION_{start_date.strftime("%B_%d_%Y")}_to_{
+            end_date.strftime("%B_%d_%Y")}.csv'
     else:
         file_name = 'REPORT_GENERATION_ALL_FILES.csv'
 
@@ -195,8 +196,7 @@ def export_csv(request):
     # Write company data
     for company, data in company_dict.items():
         filenames = '\n'.join(data['files'])  # Join filenames with line breaks
-        row = [company, filenames, data['count']]
-        writer.writerow(row)
+        writer.writerow([company, filenames, data['count']])
         writer.writerow([''])  # Add a blank row for spacing
 
     # Add extra blank row for spacing between company data and summary
@@ -205,17 +205,18 @@ def export_csv(request):
 
     # Write summary
     if start_date and end_date:
-        date_range = f'DATE RANGE: {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}'
+        date_range = f'DATE RANGE: {start_date.strftime(
+            "%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}'
     else:
         date_range = 'DATE RANGE: ALL FILES'
 
     summary_row = [date_range]
-    for company, data in company_dict.items():
+    for company in company_dict.keys():
         summary_row.append(f'# OF TRANSACTIONS OF {company}')
     writer.writerow(summary_row)
 
     count_row = ['']
-    for company, data in company_dict.items():
+    for data in company_dict.values():
         count_row.append(data['count'])
     writer.writerow(count_row)
 
