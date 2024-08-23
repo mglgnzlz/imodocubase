@@ -26,30 +26,37 @@ def doc_update(request):
     # Fetch data from the database or perform any other operations
     update_data(request)
 
-    sort_date = request.GET.get('sort-date', None)
-    sort_supplier = request.GET.get('sort-supplier', None)
-    file_type = request.GET.getlist('file-type[]')
+    try:
+        # Get request parameters
+        sort_date = request.GET.get('sort-date', None)
+        sort_supplier = request.GET.get('sort-supplier', None)
 
-    documents = Document.objects.all()
-    date_order = '-' if sort_date == 'descending' else ''
-    supplier_order = '-' if sort_supplier == 'desc' else ''
+        # Base queryset
+        documents = Document.objects.all()
 
-    documents = documents.order_by(f'{date_order}date', f'{
-                                   supplier_order}supplier')
+        # Determine sorting order
+        date_order = '-' if sort_date == 'descending' else ''
+        supplier_order = '-' if sort_supplier == 'desc' else ''
 
-    # Set Up Pagination
-    # Use the sorted and filtered documents
-    num_paginator = Paginator(documents, 10)
-    page = request.GET.get('page')
+        # Sort the queryset
+        documents = documents.order_by(f'{date_order}date', f'{
+            supplier_order}supplier')
 
-    documents = num_paginator.get_page(page)
+        # Paginate the queryset
+        num_paginator = Paginator(documents, 10)
+        page = request.GET.get('page')
 
-    context = {
-        'documents': documents,
-        'file_type': file_type,
-        'sort_date': sort_date,
-        'sort_supplier': sort_supplier
-    }
+        documents = num_paginator.get_page(page)
+
+        # Prepare context data
+        context = {
+            'documents': documents,
+            'sort_date': sort_date,
+            'sort_supplier': sort_supplier}
+
+    except Exception as e:
+        error_message = "An error occurred: " + str(e)
+        context['error_message'] = error_message
 
     return render(request, "dobaMainPage/dbview.html", context)
 
