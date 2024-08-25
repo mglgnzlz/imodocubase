@@ -30,18 +30,18 @@
 </div>
 
 <div class="filter_section">
-  <form
-    action="{% url 'doc_update' %}"
-    method="GET">
+  <form action="{% url 'doc_update' %}" method="GET">
     <!-- Your existing inputs... -->
     <select name="sort-date">
-      <option value="ascending">Date (Ascending)</option>
-      <option value="descending">Date (Descending)</option>
+      <option value="ascending" {% if sort_date == "ascending" %}selected{% endif %}>Date (Ascending)</option>
+      <option value="descending" {% if sort_date == "descending" %}selected{% endif %}>Date (Descending)</option>
     </select>
     <select name="sort-supplier">
-      <option value="asc">Supplier (A-Z)</option>
-      <option value="desc">Supplier (Z-A)</option>
+      <option value="asc" {% if sort_supplier == "asc" %}selected{% endif %}>Supplier (A-Z)</option>
+      <option value="desc" {% if sort_supplier == "desc" %}selected{% endif %}>Supplier (Z-A)</option>
     </select>
+
+    <button type="submit">Update</button>
   </form>
 </div>
 
