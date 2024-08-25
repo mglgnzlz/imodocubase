@@ -22,7 +22,9 @@ def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 
-def doc_update(request):
+def doc_update(request, document_id = None):
+    if document_id:
+        document = Document.objects.get(id=document_id)
     # Fetch data from the database or perform any other operations
     update_data(request)
     

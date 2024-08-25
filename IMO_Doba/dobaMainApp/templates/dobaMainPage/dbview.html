@@ -1,38 +1,24 @@
-{% extends 'dobaMainPage/base.html' %} {% block content %} {%load static%}
+{% extends 'dobaMainPage/base.html' %}
+{% block content %}
+{% load static %}
 
 <script src="{% static 'js/contextMenu.js' %}"></script>
 
 <div class="dbview_header">
   <div class="search_sec">
-    <form
-      class="search_bar"
-      action="{%url 'search_data' %}"
-      method="GET">
-      <input
-        type="text"
-        name="query"
-        placeholder="Transaction_Type_Company_Date" />
-      <button
-        id="search_btn"
-        type="submit">
-        SEARCH
-      </button>
+    <form class="search_bar" action="{% url 'search_data' %}" method="GET">
+      <input type="text" name="query" placeholder="Transaction_Type_Company_Date" />
+      <button id="search_btn" type="submit">SEARCH</button>
     </form>
   </div>
 
   <div class="update_sec">
-    <button
-      id="update-btn"
-      name="update-btn">
-      UPDATE DATA
-    </button>
+    <button id="update-btn" name="update-btn">UPDATE DATA</button>
   </div>
 </div>
 
 <div class="filter_section">
-  <form
-    action="{% url 'doc_update' %}"
-    method="GET">
+  <form action="{% url 'doc_update' %}" method="GET">
     <!-- Your existing inputs... -->
     <select name="sort-date">
       <option value="ascending">Date (Ascending)</option>
@@ -62,94 +48,70 @@
         <th>Update Document</th>
         <th>Download</th>
         <th>View</th>
-
       </tr>
     </thead>
     <tbody>
       <!-- Django loop function for each document in Document module, via views.py -->
       {% for document in documents %}
-      <tr
-        class="document"
-        id="document {{ document.id }}"
-        data-document-id="{{ document.id }}">
+      
+      <tr class="document" id="document_{{ document.id }}" data-document-id="{{ document.id }}">
         <td>{{ document.document_name }}</td>
         <td>{{ document.document_type }}</td>
         <td>{{ document.supplier }}</td>
         <td>{{ document.date }}</td>
-        <form method = "post" action = "{% url 'doc_update' document_id %}">
-          {%csrf_token%}
-          <input type="hidden" name="document_id" value = "{{ document_id }}">
-          <td>
-            <input type="text" name="po_number" value = "{{document.po_number}}">
-          </td>
-          
-          <td>
-            <input type="text" name="remarks" value = "{{document.remarks}}">
-          </td>
 
+        <form method="post" action="{% url 'doc_update' %}">
+          {% csrf_token %}
+          <input type="hidden" name="document_id" value="{{ document.id }}">
           <td>
-            <input type="text" name="status" value = "{{document.status}}">
+            <input type="text" name="po_number" value="{{ document.po_number }}">
           </td>
-
           <td>
-            <button type = "submit"> Update </button>
+            <input type="text" name="status" value="{{ document.status }}">
           </td>
-
+          <td>
+            <input type="text" name="remarks" value="{{ document.remarks }}">
+          </td>
+          <td>
+            <button type="submit">Update</button>
+          </td>
         </form>
+
         <td>
-          <a
-            href="{% url 'download_document' document.id %}"
-            class="btn btn-primary"
-            >Download</a>
+          <a href="{% url 'download_document' document.id %}" class="btn btn-primary">Download</a>
         </td>
         <td>
-          <a
-            href="{% url 'view_document' document.id %}"
-            class="btn btn-secondary"
-            target="_blank"
-            >View
-          </a>
+          <a href="{% url 'view_document' document.id %}" class="btn btn-secondary" target="_blank">View</a>
         </td>
       </tr>
+      {% endfor %}
     </tbody>
-    {% endfor %}
   </table>
 </div>
 
-<!---sort_date, sort_supplier, file_type--->
-
 <div class="pagination">
   <ul class="page">
-    {% for i in documents.paginator.page_range %} {% if documents.number == i %}
-    <a
-      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}"
-      class="active">
+    {% for i in documents.paginator.page_range %}
+    {% if documents.number == i %}
+    <a href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}" class="active">
       <li>{{ i }}</li>
     </a>
     {% elif i > documents.number|add:"-3" and i < documents.number|add:"3" %}
-    <a
-      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
+    <a href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
       <li>{{ i }}</li>
     </a>
-    {% endif %} {% endfor %}
+    {% endif %}
+    {% endfor %}
   </ul>
 </div>
 
 <div id="contextMenu">
   <ul>
     <li>
-      <a
-        href="#"
-        id="renameAction"
-        >Rename</a
-      >
+      <a href="#" id="renameAction">Rename</a>
     </li>
     <li>
-      <a
-        href="#"
-        id="deleteAction"
-        >Delete</a
-      >
+      <a href="#" id="deleteAction">Delete</a>
     </li>
   </ul>
 </div>

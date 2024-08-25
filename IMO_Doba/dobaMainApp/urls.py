@@ -4,7 +4,8 @@ from . import views
 
 urlpatterns = [
     path("", views.home, name='home'),
-    path("dbview/", views.doc_update, name ='doc_update'),
+    path('dbview/', views.doc_update, name='doc_update'), 
+    path('dbview/<int:document_id>/', views.doc_update, name='doc_update'),
     path('download/<int:document_id>/', views.download_document, name='download_document'),
     path('rename/<int:document_id>/', views.rename_doc, name='rename_doc'),
     path('delete/<int:document_id>/', views.delete_doc, name='delete_doc'),
