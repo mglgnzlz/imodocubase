@@ -22,6 +22,10 @@
           <th>Document Type</th>
           <th>Supplier</th>
           <th>Date</th>
+          <th>P.O. Number</th>
+          <th>Status</th>
+          <th>Remarks</th>
+          <th>View</th>
           <th>Download</th>
         </tr>
       </thead>
@@ -36,6 +40,15 @@
           <td>{{ document.document_type }}</td>
           <td>{{ document.supplier }}</td>
           <td>{{ document.date }}</td>
+          <td>{{ document.po_number }}</td>
+          <td>{{ document.status }}</td>
+          <td>{{ document.remarks }}</td>
+          
+          <td>
+            <a href="{% url 'view_document' document.id %}" class="btn btn-primary" >
+            View</a
+            >
+          </td>
           <td>
             <a
               href="{% url 'download_document' document.id %}"
@@ -43,6 +56,7 @@
               >Download</a
             >
           </td>
+
         </tr>
       </tbody>
       {% endfor %}

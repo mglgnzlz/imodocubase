@@ -27,52 +27,59 @@ def doc_update(request, document_id = None):
         document = Document.objects.get(id=document_id)
     # Fetch data from the database or perform any other operations
     update_data(request)
-    
+        
     print("Request GET data:", request.GET)
     print("Request POST data:", request.POST)
     
-    if request.method == 'POST':
-        document_id = request.POST.get('document_id')
-        po_number = request.POST.get('po_number')
-        remarks = request.POST.get('remarks')
-        status = request.POST.get('status')
+    try:
+        if request.method == 'POST':
+            document_id = request.POST.get('document_id')
+            po_number = request.POST.get('po_number')
+            remarks = request.POST.get('remarks')
+            status = request.POST.get('status')
+            
+            document = Document.objects.get(id=document_id)
+            if po_number:
+                document.po_number = po_number
+            if remarks:
+                document.remarks = remarks
+            if status:
+                document.status = status 
+            
+            document.save()
+
+            return redirect('doc_update')
         
-        document = Document.objects.get(id=document_id)
-        if po_number:
-            document.po_number = po_number
-        if remarks:
-            document.remarks = remarks
-        if status:
-            document.status = status 
         
-        document.save()
+        # Get request parameters
+        sort_date = request.GET.get('sort-date', None)
+        sort_supplier = request.GET.get('sort-supplier', None)
 
-        return redirect('doc_update')
-    
+        # Base queryset
+        documents = Document.objects.all()
 
-    sort_date = request.GET.get('sort-date', None)
-    sort_supplier = request.GET.get('sort-supplier', None)
-    file_type = request.GET.getlist('file-type[]')
+        # Determine sorting order
+        date_order = '-' if sort_date == 'descending' else ''
+        supplier_order = '-' if sort_supplier == 'desc' else ''
 
-    documents = Document.objects.all()
-    date_order = '-' if sort_date == 'descending' else ''
-    supplier_order = '-' if sort_supplier == 'desc' else ''
+        # Sort the queryset
+        documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
 
-    documents = documents.order_by(f'{date_order}date', f'{supplier_order}supplier')
+        # Paginate the queryset
+        num_paginator = Paginator(documents, 10)
+        page = request.GET.get('page')
 
-    # Set Up Pagination
-    # Use the sorted and filtered documents
-    num_paginator = Paginator(documents, 10)
-    page = request.GET.get('page')
+        documents = num_paginator.get_page(page)
 
-    documents = num_paginator.get_page(page)
+        # Prepare context data
+        context = {
+            'documents': documents,
+            'sort_date': sort_date,
+            'sort_supplier': sort_supplier}
 
-    context = {
-        'documents': documents,
-        'file_type': file_type,
-        'sort_date': sort_date,
-        'sort_supplier': sort_supplier
-    }
+    except Exception as e:
+        error_message = "An error occurred: " + str(e)
+        context['error_message'] = error_message
 
     return render(request, "dobaMainPage/dbview.html", context)
 
@@ -191,7 +198,7 @@ def export_csv(request):
     company_dict = {}
     for document in queryset:
         company = document.supplier
-        file_name = f'TRANSACTION_{company}_{document.date.strftime("%Y%m%d")}'
+        file_name = f'{document.extract_file_type()}_{company}_{document.date.strftime("%Y%m%d")}'
         if company not in company_dict:
             company_dict[company] = {'count': 0, 'files': []}
         company_dict[company]['count'] += 1
@@ -199,8 +206,6 @@ def export_csv(request):
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-
-    # Determine the file name based on the date range
     if start_date and end_date:
         file_name = f'REPORT_GENERATION_{start_date.strftime("%B_%d_%Y")}_to_{end_date.strftime("%B_%d_%Y")}.csv'
     else:
@@ -217,8 +222,7 @@ def export_csv(request):
     # Write company data
     for company, data in company_dict.items():
         filenames = '\n'.join(data['files'])  # Join filenames with line breaks
-        row = [company, filenames, data['count']]
-        writer.writerow(row)
+        writer.writerow([company, filenames, data['count']])
         writer.writerow([''])  # Add a blank row for spacing
 
     # Add extra blank row for spacing between company data and summary
@@ -232,12 +236,12 @@ def export_csv(request):
         date_range = 'DATE RANGE: ALL FILES'
 
     summary_row = [date_range]
-    for company, data in company_dict.items():
+    for company in company_dict.keys():
         summary_row.append(f'# OF TRANSACTIONS OF {company}')
     writer.writerow(summary_row)
 
     count_row = ['']
-    for company, data in company_dict.items():
+    for data in company_dict.values():
         count_row.append(data['count'])
     writer.writerow(count_row)
 
@@ -340,7 +344,10 @@ def search_data(request):
     if query:
 
         results = Document.objects.filter(
-            document_name__icontains=query).order_by('id')
+            Q(document_name__icontains=query) |
+            Q(po_number__icontains=query) |
+            Q(remarks__icontains=query) |
+            Q(status__icontains=query)).order_by('id')
 
         page = request.GET.get('page', 1)
         num_paginator = Paginator(results, 5)

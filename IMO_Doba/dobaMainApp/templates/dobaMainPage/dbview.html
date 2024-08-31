@@ -21,13 +21,15 @@
   <form action="{% url 'doc_update' %}" method="GET">
     <!-- Your existing inputs... -->
     <select name="sort-date">
-      <option value="ascending">Date (Ascending)</option>
-      <option value="descending">Date (Descending)</option>
+      <option value="ascending" {% if sort_date == "ascending" %}selected{% endif %}>Date (Ascending)</option>
+      <option value="descending" {% if sort_date == "descending" %}selected{% endif %}>Date (Descending)</option>
     </select>
     <select name="sort-supplier">
-      <option value="asc">Supplier (A-Z)</option>
-      <option value="desc">Supplier (Z-A)</option>
+      <option value="asc" {% if sort_supplier == "asc" %}selected{% endif %}>Supplier (A-Z)</option>
+      <option value="desc" {% if sort_supplier == "desc" %}selected{% endif %}>Supplier (Z-A)</option>
     </select>
+
+    <button type="submit">Update</button>
   </form>
 </div>
 
@@ -67,7 +69,12 @@
             <input type="text" name="po_number" value="{{ document.po_number }}">
           </td>
           <td>
-            <input type="text" name="status" value="{{ document.status }}">
+            <select name="status" class="status-dropdown">
+              <option value="" {% if not document.status %}selected{% endif %}>None</option>
+              <option value="Completed" {% if document.status == "Completed" %}selected{% endif %}>Completed</option>
+              <option value="Outgoing" {% if document.status == "Outgoing" %}selected{% endif %}>Outgoing</option>
+              <option value="Incoming" {% if document.status == "Incoming" %}selected{% endif %}>Incoming</option>
+            </select>
           </td>
           <td>
             <input type="text" name="remarks" value="{{ document.remarks }}">
@@ -129,6 +136,36 @@
       }
     };
     xhr.send();
+  });
+
+
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const statusDropdowns = document.querySelectorAll("select.status-dropdown");
+
+    statusDropdowns.forEach(dropdown => {
+      // Apply the correct class on page load
+      updateDropdownColor(dropdown);
+
+      // Listen for changes and apply the correct class
+      dropdown.addEventListener("change", function() {
+        updateDropdownColor(dropdown);
+      });
+    });
+
+    function updateDropdownColor(dropdown) {
+      // Remove all potential classes
+      dropdown.classList.remove("completed", "incoming", "outgoing");
+
+      // Add the class corresponding to the selected value
+      if (dropdown.value === "Completed") {
+        dropdown.classList.add("completed");
+      } else if (dropdown.value === "Incoming") {
+        dropdown.classList.add("incoming");
+      } else if (dropdown.value === "Outgoing") {
+        dropdown.classList.add("outgoing");
+      }
+    }
   });
 </script>
 
