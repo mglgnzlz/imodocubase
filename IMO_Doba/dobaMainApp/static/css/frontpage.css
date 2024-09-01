@@ -77,6 +77,27 @@ h3 {
   padding: 16px 0px;
 }
 
+
+select.status-dropdown {
+  color: black; /* Default color */
+  padding: 5px;
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ccc; /* Optional: Add a border */
+}
+
+select.status-dropdown.completed {
+  color: green;
+}
+
+select.status-dropdown.incoming {
+  color: red;
+}
+
+select.status-dropdown.outgoing {
+  color: blue;
+}
+
+
 /* DATABASE */
 .dbview_header {
   display: flex;

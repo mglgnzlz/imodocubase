@@ -1,47 +1,35 @@
-{% extends 'dobaMainPage/base.html' %} {% block content %} {%load static%}
+{% extends 'dobaMainPage/base.html' %}
+{% block content %}
+{% load static %}
 
 <script src="{% static 'js/contextMenu.js' %}"></script>
 
 <div class="dbview_header">
   <div class="search_sec">
-    <form
-      class="search_bar"
-      action="{%url 'search_data' %}"
-      method="GET">
-      <input
-        type="text"
-        name="query"
-        placeholder="Transaction_Type_Company_Date" />
-      <button
-        id="search_btn"
-        type="submit">
-        SEARCH
-      </button>
+    <form class="search_bar" action="{% url 'search_data' %}" method="GET">
+      <input type="text" name="query" placeholder="Transaction_Type_Company_Date" />
+      <button id="search_btn" type="submit">SEARCH</button>
     </form>
   </div>
 
   <div class="update_sec">
-    <button
-      id="update-btn"
-      name="update-btn">
-      UPDATE DATA
-    </button>
+    <button id="update-btn" name="update-btn">UPDATE DATA</button>
   </div>
 </div>
 
 <div class="filter_section">
-  <form
-    action="{% url 'doc_update' %}"
-    method="GET">
+  <form action="{% url 'doc_update' %}" method="GET">
     <!-- Your existing inputs... -->
     <select name="sort-date">
-      <option value="ascending">Date (Ascending)</option>
-      <option value="descending">Date (Descending)</option>
+      <option value="ascending" {% if sort_date == "ascending" %}selected{% endif %}>Date (Ascending)</option>
+      <option value="descending" {% if sort_date == "descending" %}selected{% endif %}>Date (Descending)</option>
     </select>
     <select name="sort-supplier">
-      <option value="asc">Supplier (A-Z)</option>
-      <option value="desc">Supplier (Z-A)</option>
+      <option value="asc" {% if sort_supplier == "asc" %}selected{% endif %}>Supplier (A-Z)</option>
+      <option value="desc" {% if sort_supplier == "desc" %}selected{% endif %}>Supplier (Z-A)</option>
     </select>
+
+    <button type="submit">Update</button>
   </form>
 </div>
 
@@ -56,6 +44,10 @@
         <th>Document Type</th>
         <th>Supplier</th>
         <th>Date</th>
+        <th>P.O. Number</th>
+        <th>Status</th>
+        <th>Remarks</th>
+        <th>Update Document</th>
         <th>Download</th>
         <th>View</th>
       </tr>
@@ -63,69 +55,70 @@
     <tbody>
       <!-- Django loop function for each document in Document module, via views.py -->
       {% for document in documents %}
-      <tr
-        class="document"
-        id="document {{ document.id }}"
-        data-document-id="{{ document.id }}">
+      
+      <tr class="document" id="document_{{ document.id }}" data-document-id="{{ document.id }}">
         <td>{{ document.document_name }}</td>
         <td>{{ document.document_type }}</td>
         <td>{{ document.supplier }}</td>
         <td>{{ document.date }}</td>
+
+        <form method="post" action="{% url 'doc_update' %}">
+          {% csrf_token %}
+          <input type="hidden" name="document_id" value="{{ document.id }}">
+          <td>
+            <input type="text" name="po_number" value="{{ document.po_number }}">
+          </td>
+          <td>
+            <select name="status" class="status-dropdown">
+              <option value="" {% if not document.status %}selected{% endif %}>None</option>
+              <option value="Completed" {% if document.status == "Completed" %}selected{% endif %}>Completed</option>
+              <option value="Outgoing" {% if document.status == "Outgoing" %}selected{% endif %}>Outgoing</option>
+              <option value="Incoming" {% if document.status == "Incoming" %}selected{% endif %}>Incoming</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" name="remarks" value="{{ document.remarks }}">
+          </td>
+          <td>
+            <button type="submit">Update</button>
+          </td>
+        </form>
+
         <td>
-          <a
-            href="{% url 'download_document' document.id %}"
-            class="btn btn-primary"
-            >Download</a
-          >
+          <a href="{% url 'download_document' document.id %}" class="btn btn-primary">Download</a>
         </td>
         <td>
-          <a
-            href="{% url 'view_document' document.id %}"
-            class="btn btn-secondary"
-            target="_blank"
-            >View
-          </a>
+          <a href="{% url 'view_document' document.id %}" class="btn btn-secondary" target="_blank">View</a>
         </td>
       </tr>
+      {% endfor %}
     </tbody>
-    {% endfor %}
   </table>
 </div>
 
-<!---sort_date, sort_supplier, file_type--->
-
 <div class="pagination">
   <ul class="page">
-    {% for i in documents.paginator.page_range %} {% if documents.number == i %}
-    <a
-      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}"
-      class="active">
+    {% for i in documents.paginator.page_range %}
+    {% if documents.number == i %}
+    <a href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}" class="active">
       <li>{{ i }}</li>
     </a>
     {% elif i > documents.number|add:"-3" and i < documents.number|add:"3" %}
-    <a
-      href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
+    <a href="?page={{ i }}&sort-date={{ sort_date }}&sort-supplier={{ sort_supplier }}{% for type in file_type %}&file-type[]={{ type }}{% endfor %}">
       <li>{{ i }}</li>
     </a>
-    {% endif %} {% endfor %}
+    {% endif %}
+    {% endfor %}
   </ul>
 </div>
 
 <div id="contextMenu">
   <ul>
     <li>
-      <a
-        href="#"
-        id="renameAction"
-        >Rename</a
-      >
+      <a href="#" id="renameAction">Rename</a>
     </li>
     <li>
-      <a
-        href="#"
-        id="deleteAction"
-        >Delete</a
-      >
+      <a href="#" id="deleteAction">Delete</a>
     </li>
   </ul>
 </div>
@@ -143,6 +136,36 @@
       }
     };
     xhr.send();
+  });
+
+
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const statusDropdowns = document.querySelectorAll("select.status-dropdown");
+
+    statusDropdowns.forEach(dropdown => {
+      // Apply the correct class on page load
+      updateDropdownColor(dropdown);
+
+      // Listen for changes and apply the correct class
+      dropdown.addEventListener("change", function() {
+        updateDropdownColor(dropdown);
+      });
+    });
+
+    function updateDropdownColor(dropdown) {
+      // Remove all potential classes
+      dropdown.classList.remove("completed", "incoming", "outgoing");
+
+      // Add the class corresponding to the selected value
+      if (dropdown.value === "Completed") {
+        dropdown.classList.add("completed");
+      } else if (dropdown.value === "Incoming") {
+        dropdown.classList.add("incoming");
+      } else if (dropdown.value === "Outgoing") {
+        dropdown.classList.add("outgoing");
+      }
+    }
   });
 </script>
 

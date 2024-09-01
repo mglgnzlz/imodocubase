@@ -12,3 +12,12 @@ class RenameDocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ['document_name']
+        
+
+class DocumentUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ['remarks', 'status', 'po_number']
+        widgets = {
+            'status' : forms.Select(choices=Document.STATUS_CHOICES)
+        }

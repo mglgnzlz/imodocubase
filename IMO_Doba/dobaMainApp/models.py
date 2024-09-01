@@ -10,6 +10,18 @@ class Document(models.Model):
     file_content = models.BinaryField(default=b'')
     file_path = models.CharField(max_length=512, default='')
     orig_docName = models.CharField(max_length=255, blank=True)
+    remarks = models.TextField(blank=True, null=True)
+    po_number = models.CharField(max_length=255, null=True, blank=True)
+
+    STATUS_CHOICES = [
+        ('Completed','Completed'),
+        ('Incoming','Incoming'),
+        ('Outgoing','Outgoing'),
+    ]
+    
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default = '')
+    
+    
     
     def extract_file_type(self):
         """Extracts document type from the filename and converts it to uppercase."""

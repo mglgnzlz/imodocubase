@@ -1,4 +1,8 @@
 {% extends 'dobaMainPage/base.html' %} {% block content %}
+{% load static %}
+<script src="{% static 'js/contextMenu.js' %}"></script>
+
+
 <div class>
   <div class="search">
     <form
@@ -22,6 +26,11 @@
           <th>Document Type</th>
           <th>Supplier</th>
           <th>Date</th>
+          <th>P.O. Number</th>
+          <th>Status</th>
+          <th>Remarks</th>
+          <th>Update Document</th>
+          <th>View</th>
           <th>Download</th>
         </tr>
       </thead>
@@ -36,6 +45,33 @@
           <td>{{ document.document_type }}</td>
           <td>{{ document.supplier }}</td>
           <td>{{ document.date }}</td>
+          <form method="post" action="{% url 'doc_update' %}">
+            {% csrf_token %}
+            <input type="hidden" name="document_id" value="{{ document.id }}">
+            <td>
+              <input type="text" name="po_number" value="{{ document.po_number }}">
+            </td>
+            <td>
+              <select name="status" class="status-dropdown">
+                <option value="" {% if not document.status %}selected{% endif %}>None</option>
+                <option value="Completed" {% if document.status == "Completed" %}selected{% endif %}>Completed</option>
+                <option value="Outgoing" {% if document.status == "Outgoing" %}selected{% endif %}>Outgoing</option>
+                <option value="Incoming" {% if document.status == "Incoming" %}selected{% endif %}>Incoming</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" name="remarks" value="{{ document.remarks }}">
+            </td>
+            <td>
+              <button type="submit">Update</button>
+            </td>
+          </form>
+          
+          <td>
+            <a href="{% url 'view_document' document.id %}" class="btn btn-primary" >
+            View</a
+            >
+          </td>
           <td>
             <a
               href="{% url 'download_document' document.id %}"
@@ -43,6 +79,7 @@
               >Download</a
             >
           </td>
+
         </tr>
       </tbody>
       {% endfor %}
@@ -94,6 +131,19 @@
   {% else %}
   <p>No results found</p>
   {% endif %}
+
+  
+</div>
+
+<div id="contextMenu">
+  <ul>
+    <li>
+      <a href="#" id="renameAction">Rename</a>
+    </li>
+    <li>
+      <a href="#" id="deleteAction">Delete</a>
+    </li>
+  </ul>
 </div>
 
 <div></div>
