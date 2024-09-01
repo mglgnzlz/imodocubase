@@ -1,9 +1,6 @@
 {% extends 'dobaMainPage/base.html' %} {% block content %}
 {%load static%}
 
-<script src="{% static 'js/urlStore.js' %}"></script>
-
-
 
 <div class="table_section">
   <h1>Report Generations</h1>
@@ -48,6 +45,9 @@
         <th>Document Type</th>
         <th>Supplier</th>
         <th>Date</th>
+        <th>P.O. Number</th>
+        <th>Status</th>
+        <th>Remarks</th>
       </tr>
     </thead>
     <tbody>
@@ -57,6 +57,10 @@
         <td>{{ document.document_type }}</td>
         <td>{{ document.supplier }}</td>
         <td>{{ document.date }}</td>
+        <td>{{ document.po_number}}</td>
+        <td>{{ document.status}}</td>
+        <td>{{ document.remarks}}</td>
+        
       </tr>
       {% endfor %}
     </tbody>

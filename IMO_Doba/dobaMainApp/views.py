@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 import os
 import re
 import csv
+import xlsxwriter
 import mimetypes
 from django.conf import settings
 from django.db.models import Count
@@ -160,7 +161,8 @@ def rep_gen(request):
     return render(request, 'dobaMainPage/repgeny.html', context)
 
 
-def export_csv(request):
+#def export_csv(request):
+
     sort_date = request.GET.get('sort-date', None)
     sort_supplier = request.GET.get('sort-supplier', None)
     start_date_str = request.GET.get('start_date')
@@ -198,7 +200,7 @@ def export_csv(request):
     company_dict = {}
     for document in queryset:
         company = document.supplier
-        file_name = f'{document.extract_file_type()}_{company}_{document.date.strftime("%Y%m%d")}'
+        file_name = f'{document.extract_file_type()}_{company}_{document.date.strftime("%Y-%m-%d")}'
         if company not in company_dict:
             company_dict[company] = {'count': 0, 'files': []}
         company_dict[company]['count'] += 1
@@ -246,6 +248,123 @@ def export_csv(request):
     writer.writerow(count_row)
 
     return response
+def export_csv(request):
+    sort_date = request.GET.get('sort-date', None)
+    sort_supplier = request.GET.get('sort-supplier', None)
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    time_period = request.GET.get('time-period')
+
+    # Parse dates
+    start_date = parse_date(start_date_str) if start_date_str else None
+    end_date = parse_date(end_date_str) if end_date_str else None
+
+    # Base queryset
+    queryset = Document.objects.all()
+
+    # Apply date range filter based on time period
+    if time_period and time_period != 'all-files':
+        end_date = datetime.now().date()
+        if time_period == 'last-month':
+            start_date = end_date - timedelta(days=30)
+        elif time_period == 'last-3-months':
+            start_date = end_date - timedelta(days=90)
+        elif time_period == 'last-6-months':
+            start_date = end_date - timedelta(days=180)
+        queryset = queryset.filter(date__range=[start_date, end_date])
+    elif start_date and end_date:
+        queryset = queryset.filter(date__range=[start_date, end_date])
+
+    # Determine sorting order
+    date_order = '-' if sort_date == 'descending' else ''
+    supplier_order = '-' if sort_supplier == 'desc' else ''
+
+    # Sort the queryset
+    queryset = queryset.order_by(f'{date_order}date', f'{supplier_order}supplier')
+
+    # Group by company and document type
+    company_dict = {}
+    for document in queryset:
+        company = document.supplier
+        file_name = f'{document.extract_file_type()}_{company}_{document.date.strftime("%Y-%m-%d")}'
+        if company not in company_dict:
+            company_dict[company] = {'count': 0, 'files': []}
+        company_dict[company]['count'] += 1
+        company_dict[company]['files'].append({
+            'file_name': file_name,
+            'status': document.status,
+            'remarks': document.remarks,
+            'po_number': document.po_number
+        })
+
+    # Create an HttpResponse object with Excel content
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    if start_date and end_date:
+        file_name = f'REPORT_GENERATION_{start_date.strftime("%B_%d_%Y")}_to_{end_date.strftime("%B_%d_%Y")}.xlsx'
+    else:
+        file_name = 'REPORT_GENERATION_ALL_FILES.xlsx'
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+    # Create an Excel workbook and worksheet
+    workbook = xlsxwriter.Workbook(response)
+    worksheet = workbook.add_worksheet()
+
+    # Define cell formats
+    wrap_format = workbook.add_format({'text_wrap': True})
+    bold_format = workbook.add_format({'bold': True})
+    
+    # Write headers
+    headers = ['SUPPLIER', '# OF DOCUMENTS', 'FILENAME', 'STATUS', 'REMARKS', 'PO NUMBER']
+    worksheet.write_row('A1', headers, bold_format)
+
+    row = 1
+    # Write company data
+    for company, data in company_dict.items():
+        # Write the supplier and number of documents
+        worksheet.write(row, 0, company, wrap_format)
+        worksheet.write(row, 1, data['count'], wrap_format)
+        row += 1
+        # Write file details for the supplier
+        for file_detail in data['files']:
+            worksheet.write(row, 2, file_detail['file_name'], wrap_format)
+            worksheet.write(row, 3, file_detail['status'], wrap_format)
+            worksheet.write(row, 4, file_detail['remarks'], wrap_format)
+            worksheet.write(row, 5, file_detail['po_number'], wrap_format)
+            row += 1
+        # Add extra blank row for separation
+        row += 1
+
+    # Write summary
+    row += 2  # Add some space before the summary
+    if start_date and end_date:
+        date_range = f'DATE RANGE: {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}'
+    else:
+        date_range = 'DATE RANGE: ALL FILES'
+
+    worksheet.write(row, 0, date_range, wrap_format)
+    col = 1
+    for company in company_dict.keys():
+        worksheet.write(row, col, f'# OF TRANSACTIONS OF {company}', wrap_format)
+        col += 1
+
+    row += 1
+    count_row = ['']
+    for data in company_dict.values():
+        count_row.append(data['count'])
+    worksheet.write_row(row, 1, count_row, wrap_format)
+
+    # Adjust column widths
+    worksheet.set_column('A:A', 20)  # Supplier column width
+    worksheet.set_column('B:B', 15)  # Document count column width
+    worksheet.set_column('C:C', 40)  # Filename column width
+    worksheet.set_column('D:D', 15)  # Status column width
+    worksheet.set_column('E:E', 30)  # Remarks column width
+    worksheet.set_column('F:F', 15)  # PO Number column width
+
+    workbook.close()
+    return response
+
 
 
 def download_document(request, document_id):
@@ -350,7 +469,7 @@ def search_data(request):
             Q(status__icontains=query)).order_by('id')
 
         page = request.GET.get('page', 1)
-        num_paginator = Paginator(results, 5)
+        num_paginator = Paginator(results, 10)
         results = num_paginator.page(page)
 
         return render(request, "dobaMainPage/searchPage.html", {'query': query, 'results': results})
