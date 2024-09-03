@@ -161,8 +161,8 @@ def rep_gen(request):
     return render(request, 'dobaMainPage/repgeny.html', context)
 
 
-#def export_csv(request):
 
+# def export_csv(request):
     sort_date = request.GET.get('sort-date', None)
     sort_supplier = request.GET.get('sort-supplier', None)
     start_date_str = request.GET.get('start_date')
@@ -200,6 +200,7 @@ def rep_gen(request):
     company_dict = {}
     for document in queryset:
         company = document.supplier
+        # Retain hyphens in the date format
         file_name = f'{document.extract_file_type()}_{company}_{document.date.strftime("%Y-%m-%d")}'
         if company not in company_dict:
             company_dict[company] = {'count': 0, 'files': []}
@@ -218,18 +219,22 @@ def rep_gen(request):
     writer = csv.writer(response)
 
     # Write headers
-    headers = ['COMPANY NAME', 'FILE NAMES', '# OF TRANSACTIONS']
+    headers = ['SUPPLIER', '# OF DOCUMENTS', 'FILENAME']
     writer.writerow(headers)
 
     # Write company data
     for company, data in company_dict.items():
-        filenames = '\n'.join(data['files'])  # Join filenames with line breaks
-        writer.writerow([company, filenames, data['count']])
-        writer.writerow([''])  # Add a blank row for spacing
+        # Write the supplier and number of documents
+        writer.writerow([company, data['count'], ''])
+        # Write file names for the supplier
+        for filename in data['files']:
+            writer.writerow(['', '', filename])
+        # Add extra blank row for separation
+        writer.writerow(['', '', ''])
 
     # Add extra blank row for spacing between company data and summary
-    writer.writerow([''])
-    writer.writerow([''])
+    writer.writerow(['', '', ''])
+    writer.writerow(['', '', ''])
 
     # Write summary
     if start_date and end_date:
@@ -336,23 +341,23 @@ def export_csv(request):
         row += 1
 
     # Write summary
-    row += 2  # Add some space before the summary
-    if start_date and end_date:
-        date_range = f'DATE RANGE: {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}'
-    else:
-        date_range = 'DATE RANGE: ALL FILES'
+    # row += 2  # Add some space before the summary
+    # if start_date and end_date:
+    #     date_range = f'DATE RANGE: {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}'
+    # else:
+    #     date_range = 'DATE RANGE: ALL FILES'
 
-    worksheet.write(row, 0, date_range, wrap_format)
-    col = 1
-    for company in company_dict.keys():
-        worksheet.write(row, col, f'# OF TRANSACTIONS OF {company}', wrap_format)
-        col += 1
+    # worksheet.write(row, 0, date_range, wrap_format)
+    # col = 1
+    # for company in company_dict.keys():
+    #     worksheet.write(row, col, f'# OF TRANSACTIONS OF {company}', wrap_format)
+    #     col += 1
 
-    row += 1
-    count_row = ['']
-    for data in company_dict.values():
-        count_row.append(data['count'])
-    worksheet.write_row(row, 1, count_row, wrap_format)
+    # row += 1
+    # count_row = ['']
+    # for data in company_dict.values():
+    #     count_row.append(data['count'])
+    # worksheet.write_row(row, 1, count_row, wrap_format)
 
     # Adjust column widths
     worksheet.set_column('A:A', 20)  # Supplier column width

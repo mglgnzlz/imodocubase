@@ -54,9 +54,8 @@
             <td>
               <select name="status" class="status-dropdown">
                 <option value="" {% if not document.status %}selected{% endif %}>None</option>
-                <option value="Completed" {% if document.status == "Completed" %}selected{% endif %}>Completed</option>
-                <option value="Outgoing" {% if document.status == "Outgoing" %}selected{% endif %}>Outgoing</option>
-                <option value="Incoming" {% if document.status == "Incoming" %}selected{% endif %}>Incoming</option>
+                <option value="Out" {% if document.status == "Out" %}selected{% endif %}>Out</option>
+                <option value="In" {% if document.status == "In" %}selected{% endif %}>In</option>
               </select>
             </td>
             <td>

@@ -14,9 +14,8 @@ class Document(models.Model):
     po_number = models.CharField(max_length=255, null=True, blank=True)
 
     STATUS_CHOICES = [
-        ('Completed','Completed'),
-        ('Incoming','Incoming'),
-        ('Outgoing','Outgoing'),
+        ('In','In'),
+        ('Out','Out'),
     ]
     
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default = '')

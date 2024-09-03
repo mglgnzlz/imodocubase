@@ -85,16 +85,12 @@ select.status-dropdown {
   border: 1px solid #ccc; /* Optional: Add a border */
 }
 
-select.status-dropdown.completed {
-  color: green;
-}
-
-select.status-dropdown.incoming {
-  color: red;
-}
-
-select.status-dropdown.outgoing {
+select.status-dropdown.in {
   color: blue;
+}
+
+select.status-dropdown.out {
+  color: red;
 }
 
 
